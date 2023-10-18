@@ -243,7 +243,7 @@ class DP4_Core:
         self.Save.hot_wallet -= transfer_amount
 
         # self.log(f'[transfer_currency] Secured {ff(transfer_amount)}')
-        self.log(self.Lang.sim_transfer_currency_result.format(transfer_amount=transfer_amount))
+        self.log(self.Lang.sim_transfer_currency_result.format(transfer_amount=ff(transfer_amount)))
 
 
     def sim_death(self) -> None:
@@ -444,7 +444,7 @@ class DP4_Core:
                     del self.Save.inventory[item_name]
 
                     # self.log(f'[fight] <{entity_name}> took {item_count} [{item_name}] worth {ff(stack_value)}')
-                    self.log(self.Lang.sim_fight_entitystealsitem.format(entity_name=entity_name, item_count=item_count, item_name=item_name, stack_value=stack_value))
+                    self.log(self.Lang.sim_fight_entitystealsitem.format(entity_name=entity_name, item_count=item_count, item_name=item_name, stack_value=ff(stack_value)))
 
             self.sim_rebirth()
             return
