@@ -157,6 +157,8 @@ class DP4_Conf:
     sim_fight_fighting_duration: tuple[float, float] = (3.0, 5.0)
     sim_fight_searchcorpse_duration: tuple[float, float] = (3.0, 5.0)
     sim_fight_hidecorpse_duration: tuple[float, float] = (3.0, 5.0)
+    sim_fight_stolenitemsmin_count: int = 0
+    sim_fight_stolenitemsmax_mod: float = 0.3
 
-    sim_find_loot_count: tuple[int, int] = (0, 3)
+    sim_find_loot_count: tuple[int, int] = (0, 4)
     sim_find_loot_wagoncheck_duration: tuple[float, float] = (3.0, 5.0)

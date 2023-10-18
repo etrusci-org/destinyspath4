@@ -4,16 +4,16 @@ import random
 import sys
 import time
 
-from lib.conf import DP4_Conf
-from lib.event import DP4_Event
-from lib.string import DP4_String
-from lib.save import DP4_Save
-from lib.terminal import clear_terminal
-from lib.terminal import disable_terminal_cursor
-from lib.terminal import enable_terminal_cursor
-from lib.spinner import spinner
-from lib.number import rffr
-from lib.number import ff
+from .conf import DP4_Conf
+from .event import DP4_Event
+from .string import DP4_String
+from .save import DP4_Save
+from .terminal import clear_terminal
+from .terminal import disable_terminal_cursor
+from .terminal import enable_terminal_cursor
+from .spinner import spinner
+from .number import rffr
+from .number import ff
 
 
 
@@ -69,34 +69,6 @@ class DP4_Core:
 
         # init save class
         self.Save = DP4_Save(file=self.Conf.save_file)
-
-        # test test test
-
-        # print(self.cliargs)
-        # print('Conf.game_dir', self.Conf.game_dir)
-        # print('Conf.asset_dir', self.Conf.asset_dir)
-        # print('Conf.save_dir', self.Conf.save_dir)
-        # print('Conf.save_name', self.Conf.save_name)
-        # print('Conf.save_file', self.Conf.save_file)
-        # print('Save.file', self.Save.file)
-        # print('Save.shell_name', self.Save.shell_name)
-        # print('String.current_shell_name', self.String.current_shell_name)
-
-        # self.Save.load(file=self.Conf.save_file)
-        # self.add_inventory_item('foo')
-        # self.add_inventory_item('bar')
-        # self.Save.store(file=self.Conf.save_file)
-
-        # print(self.String.random_name('object'))
-
-        # print(self.item_value('foo'))
-        # print(self.item_value('bar'))
-        # print(self.item_value('foo bar'))
-        # print(self.item_value('foo bar mo cow'))
-
-        # print(random.randint(1, max(1, 0.5)))
-
-        # exit(0)
 
 
 
@@ -199,8 +171,8 @@ class DP4_Core:
 
         for item_name in sorted(self.Save.inventory):
             item_count = self.Save.inventory[item_name]['count']
-            item_value = self.Save.inventory[item_name]['item_value']
-            stack_value = self.Save.inventory[item_name]['stack_value']
+            item_value = self.Save.inventory[item_name]['item_value'] * vendor_mod
+            stack_value = item_value * item_count
 
             total_income += stack_value
             total_items_sold += item_count
@@ -213,7 +185,9 @@ class DP4_Core:
             del self.Save.inventory[item_name]
 
             per_item_value_str = f' ({ff(item_value)}/item)' if item_count > 1 else ''
+
             self.log(f'[sell] Sold {item_count} [{item_name}] for {ff(stack_value)}{per_item_value_str}')
+
 
         self.log(f'[sell] Earned {ff(total_income)} from {total_items_sold} items')
         self.log('[sell] Leaving the shop', sleep=rffr(self.Conf.sim_sell_leavevendor_duration), with_spinner=True)
@@ -229,7 +203,7 @@ class DP4_Core:
         self.Save.cold_wallet += transfer_amount
         self.Save.hot_wallet -= transfer_amount
 
-        self.log(f'[transfer_currency] Secured {transfer_amount} {self.Conf.currency_name}')
+        self.log(f'[transfer_currency] Secured {ff(transfer_amount)}')
 
 
     def sim_wakeup(self) -> None:
@@ -249,7 +223,7 @@ class DP4_Core:
         self.Save.total_random_deaths += 1
 
         deathcause = self.String.random_name('deathcause')
-        self.log(f'[death] You died because *{deathcause}*', sleep=rffr(self.Conf.sim_death_dying_duration), with_spinner=True)
+        self.log(f'[death] You died because `{deathcause}´', sleep=rffr(self.Conf.sim_death_dying_duration), with_spinner=True)
         self.sim_rebirth()
 
 
@@ -285,20 +259,21 @@ class DP4_Core:
 
         if self.Event.win:
             self.log('[hacker] They failed to gain access')
-        else:
-            self.log('[hacker] They gained access', sleep=rffr(self.Conf.sim_hacker_hacking_duration), with_spinner=True)
+            return
 
-            stolen_amount = self.Save.hot_wallet
+        self.log('[hacker] They gained access', sleep=rffr(self.Conf.sim_hacker_hacking_duration), with_spinner=True)
 
-            self.Save.hot_wallet -= stolen_amount
+        if self.Save.hot_wallet == 0:
+            self.log('[hacker] Luckily the hot wallet was empty')
+            return
 
-            self.Save.total_currency_stolen_by_hackers += stolen_amount
+        stolen_amount = self.Save.hot_wallet
 
-            if stolen_amount == 0:
-                self.log('[hacker] Luckily the hot wallet was empty')
-                return
+        self.Save.hot_wallet -= stolen_amount
 
-            self.log(f'[hacker] You lost {stolen_amount} {self.Conf.currency_name}')
+        self.Save.total_currency_stolen_by_hackers += stolen_amount
+
+        self.log(f'[hacker] You lost {ff(stolen_amount)}')
 
 
     def sim_container(self) -> None:
@@ -318,9 +293,6 @@ class DP4_Core:
 
         attitude_player: str = random.choice(self.Conf.sim_entity_attitude)
         attitude_entity: str = random.choice(self.Conf.sim_entity_attitude)
-        # attitude_player: str = 'hostile'
-        # attitude_entity: str = 'hostile'
-
 
         self.log(f'[entity] You act {attitude_player}', sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
 
@@ -345,13 +317,13 @@ class DP4_Core:
         if attitude_player == 'friendly':
 
             if attitude_entity == 'hostile':
-                self.log(f'[entity] <{entity_name}> taunts you', sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
+                self.log(f'[entity] <{entity_name}> acts {attitude_entity}', sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
+
+                self.log(f'[entity] You try to calm <{entity_name}> down', sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
 
                 if random.random() < rffr(self.Conf.sim_entity_playerflee_chance_range):
                     self.log('[entity] You flee')
                     return
-
-                self.log('[entity] You could not care less')
 
                 self.log(f'[entity] <{entity_name}> attacks you')
                 self.sim_fight(entity_name)
@@ -373,7 +345,8 @@ class DP4_Core:
         if self.Event.win:
             self.log(f'[conversation] <{entity_name}> is impressed by your knowledge')
             self.add_inventory_item(item_name)
-            self.log(f'[conversation] You received [{item_name}] as a gift')
+            self.log(f'[conversation] You received [{item_name}] worth {ff(self.Save.inventory[item_name]["item_value"])} as a gift')
+            self.log(f'[conversation] You thank <{entity_name}>')
         else:
             self.log(f'[conversation] <{entity_name}> got bored')
 
@@ -390,7 +363,8 @@ class DP4_Core:
             self.log(f'[fight] <{entity_name}> murdered you')
 
             if len(self.Save.inventory.keys()) > 0:
-                stolen_items = random.sample(sorted(self.Save.inventory), random.randint(1, max(1, int(len(self.Save.inventory.keys()) / 2))))
+                stolen_items_count: int = random.randint(self.Conf.sim_fight_stolenitemsmin_count, max(1, int(len(self.Save.inventory.keys()) * self.Conf.sim_fight_stolenitemsmax_mod)))
+                stolen_items: list = random.sample(sorted(self.Save.inventory), stolen_items_count)
                 for item_name in stolen_items:
                     item_count = self.Save.inventory[item_name]['count']
                     stack_value = self.Save.inventory[item_name]['stack_value']
@@ -399,7 +373,7 @@ class DP4_Core:
 
                     del self.Save.inventory[item_name]
 
-                    self.log(f'[fight] <{entity_name}> took {item_count} [{item_name}] worth {stack_value} {self.Conf.currency_name}')
+                    self.log(f'[fight] <{entity_name}> took {item_count} [{item_name}] worth {ff(stack_value)}')
 
             self.sim_rebirth()
             return
@@ -418,8 +392,8 @@ class DP4_Core:
     def sim_find_loot(self, count: int = None) -> None:
         item_count: int = count if count else random.randint(*self.Conf.sim_find_loot_count)
 
-        if item_count < 1:
-            self.log(f'[find_loot] There is nothing inside')
+        if item_count == 0:
+            self.log(f'[find_loot] A dark void stares back at you')
             return
 
         found_items: list[str] = []
@@ -431,18 +405,14 @@ class DP4_Core:
             found_items.append(item_name)
             self.log(f'[find_loot] Found [{item_name}]')
 
-        self.log(f'[find_loot] Looking for free boxes on the wagon', sleep=rffr(self.Conf.sim_find_loot_wagoncheck_duration), with_spinner=True)
+        self.log(f'[find_loot] Looking for empty boxes on the wagon', sleep=rffr(self.Conf.sim_find_loot_wagoncheck_duration), with_spinner=True)
 
         for item_name in found_items:
-            if self.Conf.inventory_size - len(self.Save.inventory.keys()) > 0:
-                self.log(f'[find_loot] Storing [{item_name}]')
-                self.add_inventory_item(item_name)
-            else:
-                if not self.Save.inventory.get(item_name):
-                    self.log(f'[find_loot] Discarding [{item_name}]')
-                else:
-                    self.log(f'[find_loot] Storing [{item_name}]')
-                    self.add_inventory_item(item_name)
+            if len(self.Save.inventory.keys()) >= self.Conf.inventory_size and not self.Save.inventory.get(item_name):
+                self.log(f'[find_loot] Discarding [{item_name}]')
+                continue
+            self.log(f'[find_loot] Storing [{item_name}]')
+            self.add_inventory_item(item_name)
 
 
 
@@ -500,38 +470,40 @@ class DP4_Core:
 
         self.log('~~~ D E S T I N Y \' S ~ P A T H ~ 4 ~~~'.ljust(w, '~'), end='\n\n', sleep=0)
 
-        self.log(f'current shell: {self.Save.shell_name}', sleep=0)
-        self.log(f'   hot wallet: {ff(self.Save.hot_wallet)} {self.Conf.currency_name}', sleep=0)
-        self.log(f'  cold wallet: {ff(self.Save.cold_wallet)} {self.Conf.currency_name}', sleep=0)
-        self.log(f'        wagon: {max(0, self.Conf.inventory_size - len(self.Save.inventory.keys()))} empty boxes', end='\n\n', sleep=0)
+        self.log(f'       current shell: {self.Save.shell_name}', sleep=0)
+        self.log(f'          hot wallet: {ff(self.Save.hot_wallet)} {self.Conf.currency_name}', sleep=0)
+        self.log(f'         cold wallet: {ff(self.Save.cold_wallet)} {self.Conf.currency_name}', sleep=0)
+        self.log(f'               wagon: {max(0, self.Conf.inventory_size - len(self.Save.inventory.keys()))} empty boxes', sleep=0)
 
-        self.log(f'         distance traveled: {ff(self.Save.total_distance_traveled, prec=3)} km', sleep=0)
+        if self.Save.total_distance_traveled > 0:
+            self.log('', sleep=0)
+            self.log(f'   distance traveled: {ff(self.Save.total_distance_traveled, prec=3)} km', sleep=0)
 
         if self.Save.total_items_looted > 0:
-            self.log(f'              items looted: {self.Save.total_items_looted}', sleep=0)
-
-        if self.Save.total_items_sold > 0:
-            self.log(f'                items sold: {self.Save.total_items_sold}', sleep=0)
-
-        if self.Save.total_trade_income > 0:
-            self.log(f'              trade income: {ff(self.Save.total_trade_income)} {self.Conf.currency_name}', sleep=0)
-
-        if self.Save.total_currency_stolen_by_hackers > 0:
-            self.log(f'currency stolen by hackers: {ff(self.Save.total_currency_stolen_by_hackers)} {self.Conf.currency_name}', sleep=0)
+            self.log(f'        items looted: {self.Save.total_items_looted}', sleep=0)
 
         if self.Save.total_items_stolen_by_foes > 0:
-            self.log(f'      items stolen by foes: {self.Save.total_items_stolen_by_foes}', sleep=0)
+            self.log(f'items stolen by foes: {self.Save.total_items_stolen_by_foes}', sleep=0)
+
+        if self.Save.total_items_sold > 0:
+            self.log(f'          items sold: {self.Save.total_items_sold}', sleep=0)
+
+        if self.Save.total_trade_income > 0:
+            self.log(f'        trade income: {ff(self.Save.total_trade_income)} {self.Conf.currency_name}', sleep=0)
+
+        if self.Save.total_currency_stolen_by_hackers > 0:
+            self.log(f'   stolen by hackers: {ff(self.Save.total_currency_stolen_by_hackers)} {self.Conf.currency_name}', sleep=0)
 
         if self.Save.total_kills > 0:
-            self.log(f'                     kills: {self.Save.total_kills}', sleep=0)
+            self.log(f'               kills: {self.Save.total_kills}', sleep=0)
 
         if self.Save.total_deaths > 0:
-            self.log(f'                    deaths: {self.Save.total_deaths}', sleep=0)
+            self.log(f'              deaths: {self.Save.total_deaths}', sleep=0)
 
         if self.Save.total_deaths_by_foes > 0:
-            self.log(f'            deaths by foes: {self.Save.total_deaths_by_foes}', sleep=0)
+            self.log(f'      deaths by foes: {self.Save.total_deaths_by_foes}', sleep=0)
 
         if self.Save.total_random_deaths > 0:
-            self.log(f'        deaths by accident: {self.Save.total_random_deaths}', sleep=0)
+            self.log(f'  deaths by accident: {self.Save.total_random_deaths}', sleep=0)
 
         self.log(f'~'.rjust(w, '~'), start='\n', end='\n\n', sleep=0)
