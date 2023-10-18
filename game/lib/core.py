@@ -6,6 +6,7 @@ import time
 
 from .conf import DP4_Conf
 from .event import DP4_Event
+from .lang import DP4_Lang
 from .string import DP4_String
 from .save import DP4_Save
 from .terminal import clear_terminal
@@ -51,7 +52,17 @@ class DP4_Core:
             type=str,
             default=self.Conf.save_dir,
             required=False,
-            help=f'path to the save data directory, default={self.Conf.save_dir}'
+            help=f'path to the save data directory (default={self.Conf.save_dir})'
+        )
+
+        self.CLIParser.add_argument('-L', '--lang',
+            metavar='LANG_CODE',
+            type=str,
+            # default=self.Conf.lang,
+            default='en',
+            choices=['en', 'de'],
+            required=False,
+            help=f'translation to use for output (default=en)'
         )
 
         # parse cli args
@@ -66,6 +77,11 @@ class DP4_Core:
         # all peaches and cream if we reach this line
         self.Conf.save_dir = save_dir
         self.Conf.save_file = self.Conf.save_dir.joinpath(f'{self.cliargs.save_name}.json')
+        lang_default = self.Conf.lang
+        self.Conf.lang = self.cliargs.lang
+
+        # init lang class
+        self.Lang: DP4_Lang = DP4_Lang(lang_code=self.Conf.lang, default_lang=lang_default)
 
         # init save class
         self.Save = DP4_Save(file=self.Conf.save_file)
@@ -154,17 +170,38 @@ class DP4_Core:
 
 
 
+    def sim_wakeup(self) -> None:
+        # self.log(f'[wakeup] You wake up in a shell named <{self.Save.shell_name}>', sleep=rffr(self.Conf.sim_wakeup_wakingup_duration), with_spinner=True)
+        self.log(self.Lang.sim_wakeup.format(shell_name=self.Save.shell_name), sleep=rffr(self.Conf.sim_wakeup_wakingup_duration), with_spinner=True)
+
+
+    def sim_walk(self) -> None:
+        start = time.time()
+
+        # self.log('[walk] You walk the path', sleep=rffr(self.Conf.sim_walk_walking_duration), with_spinner=True, spinner_type='arrow')
+        self.log(self.Lang.sim_walk, sleep=rffr(self.Conf.sim_walk_walking_duration), with_spinner=True, spinner_type='arrow')
+
+        self.update_distance_traveled(start)
+
+        self.update_world_level()
+
+
     def sim_sell(self) -> None:
-        self.log('[sell] The wagon is full')
-        self.log('[sell] Looking for a vendor', sleep=rffr(self.Conf.sim_sell_searchvendor_duration), with_spinner=True)
+        # self.log('[sell] The wagon is full')
+        self.log(self.Lang.sim_sell_wagonfull)
+        # self.log('[sell] Looking for a vendor', sleep=rffr(self.Conf.sim_sell_searchvendor_duration), with_spinner=True)
+        self.log(self.Lang.sim_sell_lookingforvendor, sleep=rffr(self.Conf.sim_sell_searchvendor_duration), with_spinner=True)
 
         vendor_name = self.String.random_name('entity')
-        self.log(f'[sell] Found the shop of <{vendor_name}>')
+        # self.log(f'[sell] Found the shop of <{vendor_name}>')
+        self.log(self.Lang.sim_sell_foundshop.format(vendor_name=vendor_name))
 
-        self.log('[sell] Negotiating trade price modificator', sleep=rffr(self.Conf.sim_sell_negvendormod_duration), with_spinner=True)
+        # self.log('[sell] Negotiating trade price modificator', sleep=rffr(self.Conf.sim_sell_negvendormod_duration), with_spinner=True)
+        self.log(self.Lang.sim_sell_negvendormod, sleep=rffr(self.Conf.sim_sell_negvendormod_duration), with_spinner=True)
 
         vendor_mod = rffr(self.Conf.sim_sell_vendormod_range)
-        self.log(f'[sell] Negotiated {ff(vendor_mod)}')
+        # self.log(f'[sell] Negotiated {ff(vendor_mod)}')
+        self.log(self.Lang.sim_sell_negvendormodresult.format(vendor_mod=ff(vendor_mod)))
 
         total_income: float = 0.0
         total_items_sold: int = 0
@@ -184,38 +221,31 @@ class DP4_Core:
 
             del self.Save.inventory[item_name]
 
-            per_item_value_str = f' ({ff(item_value)}/item)' if item_count > 1 else ''
+            per_item_value_str = f'(1={ff(item_value)})' if item_count > 1 else ''
 
-            self.log(f'[sell] Sold {item_count} [{item_name}] for {ff(stack_value)}{per_item_value_str}')
+            # self.log(f'[sell] Sold {item_count} [{item_name}] for {ff(stack_value)}{per_item_value_str}')
+            self.log(self.Lang.sim_sell_solditem.format(item_count=item_count, item_name=item_name, stack_value=ff(stack_value), per_item_value=per_item_value_str))
 
-
-        self.log(f'[sell] Earned {ff(total_income)} from {total_items_sold} items')
-        self.log('[sell] Leaving the shop', sleep=rffr(self.Conf.sim_sell_leavevendor_duration), with_spinner=True)
+        # self.log(f'[sell] Earned {ff(total_income)} from {total_items_sold} items')
+        self.log(self.Lang.sim_sell_result.format(total_income=ff(total_income), item_count=total_items_sold))
+        # self.log('[sell] Leaving the shop', sleep=rffr(self.Conf.sim_sell_leavevendor_duration), with_spinner=True)
+        self.log(self.Lang.sim_sell_leavingshop, sleep=rffr(self.Conf.sim_sell_leavevendor_duration), with_spinner=True)
 
 
     def sim_transfer_currency(self) -> None:
-        self.log('[transfer_currency] Currency treshold triggered')
+        # self.log('[transfer_currency] Currency treshold triggered')
+        self.log(self.Lang.sim_transfer_currency_thresholdtriggered)
 
-        self.log(f'[transfer_currency] Transfering some {self.Conf.currency_name} to the cold wallet', sleep=rffr(self.Conf.sim_transfer_currency_transfer_duration), with_spinner=True)
+        # self.log(f'[transfer_currency] Transfering some {self.Conf.currency_name} to the cold wallet', sleep=rffr(self.Conf.sim_transfer_currency_transfer_duration), with_spinner=True)
+        self.log(self.Lang.sim_transfer_currency_transfering.format(currency_name=self.Conf.currency_name), sleep=rffr(self.Conf.sim_transfer_currency_transfer_duration), with_spinner=True)
 
         transfer_amount = self.Save.hot_wallet * self.Conf.sim_transfer_currency_transfer_amount_mod
 
         self.Save.cold_wallet += transfer_amount
         self.Save.hot_wallet -= transfer_amount
 
-        self.log(f'[transfer_currency] Secured {ff(transfer_amount)}')
-
-
-    def sim_wakeup(self) -> None:
-        self.log(f'[wakeup] You wake up in a shell named <{self.Save.shell_name}>', sleep=rffr(self.Conf.sim_wakeup_wakingup_duration), with_spinner=True)
-
-
-    def sim_walk(self) -> None:
-        start = time.time()
-
-        self.log('[walk] You walk the path', sleep=rffr(self.Conf.sim_walk_walking_duration), with_spinner=True, spinner_type='arrow')
-
-        self.Save.total_distance_traveled += self.Conf.walking_speed * ((time.time() - start) / 3_600)
+        # self.log(f'[transfer_currency] Secured {ff(transfer_amount)}')
+        self.log(self.Lang.sim_transfer_currency_result.format(transfer_amount=transfer_amount))
 
 
     def sim_death(self) -> None:
@@ -223,48 +253,62 @@ class DP4_Core:
         self.Save.total_random_deaths += 1
 
         deathcause = self.String.random_name('deathcause')
-        self.log(f'[death] You died because `{deathcause}´', sleep=rffr(self.Conf.sim_death_dying_duration), with_spinner=True)
+
+        # self.log(f'[death] You died because `{deathcause}´', sleep=rffr(self.Conf.sim_death_dying_duration), with_spinner=True)
+        self.log(self.Lang.sim_death.format(cause_of_death=deathcause), sleep=rffr(self.Conf.sim_death_dying_duration), with_spinner=True)
+
         self.sim_rebirth()
 
 
     def sim_rebirth(self) -> None:
-        self.log('[rebirth] Waiting to be reborn', sleep=rffr(self.Conf.sim_rebirth_waiting_duration), with_spinner=True)
+        # self.log('[rebirth] Waiting to be reborn', sleep=rffr(self.Conf.sim_rebirth_waiting_duration), with_spinner=True)
+        self.log(self.Lang.sim_rebirth_waiting, sleep=rffr(self.Conf.sim_rebirth_waiting_duration), with_spinner=True)
 
         self.Save.shell_name = self.String.random_name('entity')
         self.String.current_shell_name = self.Save.shell_name
 
         self.sim_wakeup()
 
-        self.log(f'[rebirth] Calibrating reality', sleep=rffr(self.Conf.sim_rebirth_calibrate_duration), with_spinner=True)
+        # self.log(f'[rebirth] Calibrating reality', sleep=rffr(self.Conf.sim_rebirth_calibrate_duration), with_spinner=True)
+        self.log(self.Lang.sim_rebirth_calibrating, sleep=rffr(self.Conf.sim_rebirth_calibrate_duration), with_spinner=True)
 
 
     def sim_gift(self) -> None:
-        self.log('[gift] A stranger is approaching', sleep=rffr(self.Conf.sim_gift_approach_duration), with_spinner=True)
+        # self.log('[gift] A stranger is approaching', sleep=rffr(self.Conf.sim_gift_approach_duration), with_spinner=True)
+        self.log(self.Lang.sim_gift_strangerapproaches, sleep=rffr(self.Conf.sim_gift_approach_duration), with_spinner=True)
 
         if not self.Event.win:
-            self.log('[gift] He silently walks by')
+            # self.log('[gift] He silently walks by')
+            self.log(self.Lang.sim_gift_fail)
             return
 
-        self.log(f'[gift] He puts a box in your hands')
-        self.log(f'[gift] You thank the stranger')
-        self.log('[gift] The stranger nods and walks away')
+        # self.log(f'[gift] He puts a box in your hands')
+        self.log(self.Lang.sim_gift_yougetboxfromstranger)
+        # self.log(f'[gift] You thank the stranger')
+        self.log(self.Lang.sim_gift_youthankstranger)
+        # self.log('[gift] The stranger nods and walks away')
+        self.log(self.Lang.sim_gift_strangernodsandwalksaway)
 
-        self.log('[gift] You open the box', sleep=rffr(self.Conf.sim_gift_opengift_duration), with_spinner=True)
+        # self.log('[gift] You open the box', sleep=rffr(self.Conf.sim_gift_opengift_duration), with_spinner=True)
+        self.log(self.Lang.sim_gift_youopengift, sleep=rffr(self.Conf.sim_gift_opengift_duration), with_spinner=True)
 
         self.sim_find_loot(count=1)
 
 
     def sim_hacker(self) -> None:
-        self.log('[hacker] Hackers are attacking your hot wallet', sleep=rffr(self.Conf.sim_hacker_attack_duration), with_spinner=True)
+        self.log(self.Lang.sim_hacker_hackersattacking, sleep=rffr(self.Conf.sim_hacker_attack_duration), with_spinner=True)
 
         if self.Event.win:
-            self.log('[hacker] They failed to gain access')
+            # self.log('[hacker] They failed to gain access')
+            self.log(self.Lang.sim_hacker_accessfailed)
             return
 
-        self.log('[hacker] They gained access', sleep=rffr(self.Conf.sim_hacker_hacking_duration), with_spinner=True)
+        # self.log('[hacker] They gained access', sleep=rffr(self.Conf.sim_hacker_hacking_duration), with_spinner=True)
+        self.log(self.Lang.sim_hacker_accessgained, sleep=rffr(self.Conf.sim_hacker_hacking_duration), with_spinner=True)
 
         if self.Save.hot_wallet == 0:
-            self.log('[hacker] Luckily the hot wallet was empty')
+            # self.log('[hacker] Luckily the hot wallet was empty')
+            self.log(self.Lang.sim_hacker_walletwasempty)
             return
 
         stolen_amount = self.Save.hot_wallet
@@ -273,15 +317,18 @@ class DP4_Core:
 
         self.Save.total_currency_stolen_by_hackers += stolen_amount
 
-        self.log(f'[hacker] You lost {ff(stolen_amount)}')
+        # self.log(f'[hacker] You lost {ff(stolen_amount)}')
+        self.log(self.Lang.sim_hacker_youlostcurrency.format(stolen_amount=ff(stolen_amount)))
 
 
     def sim_container(self) -> None:
         container_name = self.String.random_name('container')
 
-        self.log(f'[container] You stumble over |{container_name}|')
+        # self.log(f'[container] You stumble over |{container_name}|')
+        self.log(self.Lang.sim_container_findcontainer.format(container_name=container_name))
 
-        self.log('[container] Looking inside', sleep=rffr(self.Conf.sim_container_checking_duration), with_spinner=True)
+        # self.log('[container] Looking inside', sleep=rffr(self.Conf.sim_container_checking_duration), with_spinner=True)
+        self.log(self.Lang.sim_container_lookinside, sleep=rffr(self.Conf.sim_container_checking_duration), with_spinner=True)
 
         self.sim_find_loot()
 
@@ -289,78 +336,103 @@ class DP4_Core:
     def sim_entity(self) -> None:
         entity_name = self.String.random_name('entity')
 
-        self.log(f'[entity] You meet <{entity_name}>')
+        # self.log(f'[entity] You meet <{entity_name}>')
+        self.log(self.Lang.sim_entity_meet.format(entity_name=entity_name))
 
         attitude_player: str = random.choice(self.Conf.sim_entity_attitude)
         attitude_entity: str = random.choice(self.Conf.sim_entity_attitude)
 
-        self.log(f'[entity] You act {attitude_player}', sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
+        # self.log(f'[entity] You act {attitude_player}', sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
+        self.log(self.Lang.sim_entity_yourfirstreaction.format(attitude_player=attitude_player), sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
 
         if attitude_player == 'hostile':
 
             if attitude_entity == 'hostile':
-                self.log(f'[entity] <{entity_name}> taunts you', sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
+                # self.log(f'[entity] <{entity_name}> taunts you', sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
+                self.log(self.Lang.sim_entity_hostileentityreaction.format(entity_name=entity_name), sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
                 if random.random() < rffr(self.Conf.sim_entity_playerflee_chance_range):
-                    self.log('[entity] You flee')
+                    # self.log('[entity] You flee')
+                    self.log(self.Lang.sim_entity_youflee)
                     return
-                self.log(f'[entity] You attack each other')
+                # self.log(f'[entity] You attack each other')
+                self.log(self.Lang.sim_entity_bothattack)
                 self.sim_fight(entity_name)
 
             if attitude_entity == 'friendly':
-                self.log(f'[entity] <{entity_name}> is trying to calm you down', sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
+                # self.log(f'[entity] <{entity_name}> is trying to calm you down', sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
+                self.log(self.Lang.sim_entity_friendlyentityreaction.format(entity_name=entity_name), sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
                 if random.random() < rffr(self.Conf.sim_entity_entityflee_chance_range):
-                    self.log(f'<{entity_name}> is fleeing')
+                    # self.log(f'[entity] <{entity_name}> is fleeing')
+                    self.log(self.Lang.sim_entity_entityflee.format(entity_name=entity_name))
                     return
-                self.log(f'[entity] You attack <{entity_name}>')
+                # self.log(f'[entity] You attack <{entity_name}>')
+                self.log(self.Lang.sim_entity_youattack.format(entity_name=entity_name))
                 self.sim_fight(entity_name)
 
         if attitude_player == 'friendly':
 
             if attitude_entity == 'hostile':
-                self.log(f'[entity] <{entity_name}> acts {attitude_entity}', sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
+                # self.log(f'[entity] <{entity_name}> acts hostile', sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
+                self.log(self.Lang.sim_entity_entityactshostile.format(entity_name=entity_name), sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
 
-                self.log(f'[entity] You try to calm <{entity_name}> down', sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
+                # self.log(f'[entity] You try to calm <{entity_name}> down', sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
+                self.log(self.Lang.sim_entity_friendlyyoureaction.format(entity_name=entity_name), sleep=rffr(self.Conf.sim_entity_acting_duration), with_spinner=True)
 
                 if random.random() < rffr(self.Conf.sim_entity_playerflee_chance_range):
-                    self.log('[entity] You flee')
+                    # self.log('[entity] You flee')
+                    self.log(self.Lang.sim_entity_youflee)
                     return
 
-                self.log(f'[entity] <{entity_name}> attacks you')
+                # self.log(f'[entity] <{entity_name}> attacks you')
+                self.log(self.Lang.sim_entity_entityattack.format(entity_name=entity_name))
+
                 self.sim_fight(entity_name)
 
             if attitude_entity == 'friendly':
                 if random.random() < rffr(self.Conf.sim_entity_conversation_chance_range):
-                    self.log(f'[entity] {entity_name} greets you')
+                    # self.log(f'[entity] {entity_name} greets you')
+                    self.log(self.Lang.sim_entity_entityisopenforcontact)
                     self.sim_conversation(entity_name)
                     return
 
-                self.log(f'[entity] <{entity_name}> is in a hurry')
+                # self.log(f'[entity] <{entity_name}> is in a hurry')
+                self.log(self.Lang.sim_entity_entitydoesnotwantcontact)
 
 
     def sim_conversation(self, entity_name: str) -> None:
         item_name = self.String.random_name('object')
 
-        self.log(f'[conversation] Having a conversation about [{item_name}]', sleep=rffr(self.Conf.sim_conversation_convo_duration), with_spinner=True)
+        # self.log(f'[conversation] Having a conversation about [{item_name}]', sleep=rffr(self.Conf.sim_conversation_convo_duration), with_spinner=True)
+        self.log(self.Lang.sim_conversation_inprogress.format(item_name=item_name), sleep=rffr(self.Conf.sim_conversation_convo_duration), with_spinner=True)
 
         if self.Event.win:
-            self.log(f'[conversation] <{entity_name}> is impressed by your knowledge')
-            self.add_inventory_item(item_name)
-            self.log(f'[conversation] You received [{item_name}] worth {ff(self.Save.inventory[item_name]["item_value"])} as a gift')
-            self.log(f'[conversation] You thank <{entity_name}>')
-        else:
-            self.log(f'[conversation] <{entity_name}> got bored')
+            # self.log(f'[conversation] <{entity_name}> is impressed by your knowledge')
+            self.log(self.Lang.sim_conversation_entityapproves.format(entity_name=entity_name))
 
-        self.log('[conversation] Your paths diverge')
+            self.add_inventory_item(item_name)
+
+            # self.log(f'[conversation] You received [{item_name}] worth {ff(self.Save.inventory[item_name]["item_value"])} as a gift')
+            self.log(self.Lang.sim_conversation_getitem.format(item_name=item_name, item_value=ff(self.Save.inventory[item_name]['item_value'])))
+            # self.log(f'[conversation] You thank <{entity_name}>')
+            self.log(self.Lang.sim_conversation_youthankentity.format(entity_name=entity_name))
+        else:
+            # self.log(f'[conversation] <{entity_name}> got bored')
+            self.log(self.Lang.sim_conversation_entitylostinterest.format(entity_name=entity_name))
+
+        # self.log('[conversation] Your paths diverge')
+        self.log(self.Lang.sim_conversation_end)
 
 
     def sim_fight(self, entity_name: str) -> None:
-        self.log(f'[fight] Fighting', sleep=rffr(self.Conf.sim_fight_fighting_duration), with_spinner=True)
+        # self.log(f'[fight] Fighting', sleep=rffr(self.Conf.sim_fight_fighting_duration), with_spinner=True)
+        self.log(self.Lang.sim_fight_inprogress, sleep=rffr(self.Conf.sim_fight_fighting_duration), with_spinner=True)
 
         if not self.Event.win:
             self.Save.total_deaths += 1
             self.Save.total_deaths_by_foes += 1
 
-            self.log(f'[fight] <{entity_name}> murdered you')
+            # self.log(f'[fight] <{entity_name}> murdered you')
+            self.log(self.Lang.sim_fight_yougotkilled.format(entity_name=entity_name))
 
             if len(self.Save.inventory.keys()) > 0:
                 stolen_items_count: int = random.randint(self.Conf.sim_fight_stolenitemsmin_count, max(1, int(len(self.Save.inventory.keys()) * self.Conf.sim_fight_stolenitemsmax_mod)))
@@ -373,27 +445,32 @@ class DP4_Core:
 
                     del self.Save.inventory[item_name]
 
-                    self.log(f'[fight] <{entity_name}> took {item_count} [{item_name}] worth {ff(stack_value)}')
+                    # self.log(f'[fight] <{entity_name}> took {item_count} [{item_name}] worth {ff(stack_value)}')
+                    self.log(self.Lang.sim_fight_entitystealsitem.format(entity_name=entity_name, item_count=item_count, item_name=item_name, stack_value=stack_value))
 
             self.sim_rebirth()
             return
 
         self.Save.total_kills += 1
 
-        self.log(f'[fight] You murdered <{entity_name}>')
+        # self.log(f'[fight] You murdered <{entity_name}>')
+        self.log(self.Lang.sim_fight_youkilledentity.format(entity_name=entity_name))
 
-        self.log(f'[fight] Searching the corpse', sleep=rffr(self.Conf.sim_fight_searchcorpse_duration), with_spinner=True)
+        # self.log(f'[fight] Searching the corpse', sleep=rffr(self.Conf.sim_fight_searchcorpse_duration), with_spinner=True)
+        self.log(self.Lang.sim_fight_yousearchcorpse, sleep=rffr(self.Conf.sim_fight_searchcorpse_duration), with_spinner=True)
 
         self.sim_find_loot()
 
-        self.log(f'[fight] Hiding the corpse', sleep=rffr(self.Conf.sim_fight_hidecorpse_duration), with_spinner=True)
+        # self.log(f'[fight] Hiding the corpse', sleep=rffr(self.Conf.sim_fight_hidecorpse_duration), with_spinner=True)
+        self.log(self.Lang.sim_fight_youhidecorpse, sleep=rffr(self.Conf.sim_fight_hidecorpse_duration), with_spinner=True)
 
 
     def sim_find_loot(self, count: int = None) -> None:
         item_count: int = count if count else random.randint(*self.Conf.sim_find_loot_count)
 
         if item_count == 0:
-            self.log(f'[find_loot] A dark void stares back at you')
+            # self.log(f'[find_loot] A dark void stares back at you')
+            self.log(self.Lang.sim_find_loot_containerisempty)
             return
 
         found_items: list[str] = []
@@ -403,15 +480,19 @@ class DP4_Core:
             if item_name in found_items:
                 continue
             found_items.append(item_name)
-            self.log(f'[find_loot] Found [{item_name}]')
+            # self.log(f'[find_loot] Found [{item_name}]')
+            self.log(self.Lang.sim_find_loot_finditem.format(item_name=item_name))
 
-        self.log(f'[find_loot] Looking for empty boxes on the wagon', sleep=rffr(self.Conf.sim_find_loot_wagoncheck_duration), with_spinner=True)
+        # self.log(f'[find_loot] Looking for empty boxes on the wagon', sleep=rffr(self.Conf.sim_find_loot_wagoncheck_duration), with_spinner=True)
+        self.log(self.Lang.sim_find_loot_checkwagonspace, sleep=rffr(self.Conf.sim_find_loot_wagoncheck_duration), with_spinner=True)
 
         for item_name in found_items:
             if len(self.Save.inventory.keys()) >= self.Conf.inventory_size and not self.Save.inventory.get(item_name):
-                self.log(f'[find_loot] Discarding [{item_name}]')
+                # self.log(f'[find_loot] Discarding [{item_name}]')
+                self.log(self.Lang.sim_find_loot_discarditem.format(item_name=item_name))
                 continue
-            self.log(f'[find_loot] Storing [{item_name}]')
+            # self.log(f'[find_loot] Storing [{item_name}]')
+            self.log(self.Lang.sim_find_loot_storeitem.format(item_name=item_name))
             self.add_inventory_item(item_name)
 
 
@@ -420,7 +501,20 @@ class DP4_Core:
 
 
 
-    def add_inventory_item(self, item_name: str):
+    def update_distance_traveled(self, started_walking_on: float) -> None:
+        self.Save.total_distance_traveled += self.Conf.walking_speed * ((time.time() - started_walking_on) / 3_600)
+
+
+    def update_world_level(self) -> None:
+        self.Save.world_level = ((((8 * (self.Save.total_distance_traveled * 100) / 100 + 1) ** 0.5) - 1) / 2) + 1
+
+
+
+    # -----------------------------------------------------------------------
+
+
+
+    def add_inventory_item(self, item_name: str) -> None:
         self.Save.total_items_looted += 1
 
         if not self.Save.inventory.get(item_name):
@@ -465,18 +559,19 @@ class DP4_Core:
                 spinner(sleep, type=spinner_type, end=orig_end)
 
 
-    def print_head(self):
+    def print_head(self) -> None:
         w: int = 60
 
-        self.log('~~~ D E S T I N Y \' S ~ P A T H ~ 4 ~~~'.ljust(w, '~'), end='\n\n', sleep=0)
+        self.log(f'~~~=[ D e s t i n y \' s  P a t h  4 ]=~~~'.ljust(w, '~'), end='\n\n', sleep=0)
 
         self.log(f'       current shell: {self.Save.shell_name}', sleep=0)
         self.log(f'          hot wallet: {ff(self.Save.hot_wallet)} {self.Conf.currency_name}', sleep=0)
         self.log(f'         cold wallet: {ff(self.Save.cold_wallet)} {self.Conf.currency_name}', sleep=0)
-        self.log(f'               wagon: {max(0, self.Conf.inventory_size - len(self.Save.inventory.keys()))} empty boxes', sleep=0)
+        self.log(f'               wagon: {max(0, self.Conf.inventory_size - len(self.Save.inventory.keys()))} empty boxes', end='\n\n', sleep=0)
+
+        self.log(f'         world level: {self.Save.world_level}', sleep=0)
 
         if self.Save.total_distance_traveled > 0:
-            self.log('', sleep=0)
             self.log(f'   distance traveled: {ff(self.Save.total_distance_traveled, prec=3)} km', sleep=0)
 
         if self.Save.total_items_looted > 0:
@@ -506,4 +601,5 @@ class DP4_Core:
         if self.Save.total_random_deaths > 0:
             self.log(f'  deaths by accident: {self.Save.total_random_deaths}', sleep=0)
 
-        self.log(f'~'.rjust(w, '~'), start='\n', end='\n\n', sleep=0)
+        # self.log(f'~~~=[ s:{ff((time.time() - self.Save.last_saved) / 60, prec=2) if self.Save.last_saved > 0 else "0.00"}m ][ f:{ff((time.time() - self.Save.first_played) / 3_600, prec=2)}h ]'.rjust(w, '~'), start='\n', end='\n\n\n', sleep=0)
+        self.log(f'~~~=[ {self.Conf.save_name} ]'.rjust(w, '~'), start='\n', end='\n\n\n', sleep=0)

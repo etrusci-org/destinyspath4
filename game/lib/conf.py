@@ -22,9 +22,11 @@ class DP4_Conf:
     # is set in DP4_Core.__init__
     save_file: pathlib.Path = save_dir.joinpath(f'{save_name}.json')
 
+    lang: str = 'en'
+
     # auto-save interval in seconds
     # the game will always try to save on exit
-    autosave_interval: int = 60
+    autosave_interval: int = 180
 
     # chances for event groups to be triggered (after DP4_Core.sim_walk)
     # order from lowest to higest chance
@@ -110,7 +112,7 @@ class DP4_Conf:
         '9': 0.00099,
     }
 
-    walking_speed: float = 5.3
+    walking_speed: float = 50.3
 
     inventory_size: int = 20
 
@@ -131,7 +133,7 @@ class DP4_Conf:
     sim_transfer_currency_transfer_amount_mod: float = 0.75
 
     sim_walk_walking_duration: tuple[float, float] = (3.0, 5.0)
-    sim_walk_startevent_chance: float = 0.1
+    sim_walk_startevent_chance: float = 0.13
 
     sim_death_dying_duration: tuple[float, float] = (3.0, 5.0)
 
