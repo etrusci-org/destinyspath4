@@ -1,0 +1,5 @@
+barrel
+box
+casket
+coffer
+crate
