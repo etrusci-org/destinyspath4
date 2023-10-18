@@ -15,7 +15,7 @@ class DP4_Save:
         self.first_played: float = 0.0
         self.last_saved: float = 0.0
         self.shell_name: str = ''
-        self.world_level: float = 1.0
+        self.region_level: float = 1.0
         self.hot_wallet: float = 0.0
         self.cold_wallet: float = 0.0
         self.inventory: dict[str, dict[str, any]] = {}
@@ -30,9 +30,6 @@ class DP4_Save:
         self.total_deaths: int = 0
         self.total_deaths_by_foes: int = 0
         self.total_random_deaths: int = 0
-
-        # idea: ship stuff to vault instead of selling when value > 0.033
-        # self.item_vault: dict[str, dict[str, any]] = {}
 
 
     def load(self) -> None:

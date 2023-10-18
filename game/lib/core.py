@@ -55,15 +55,14 @@ class DP4_Core:
             help=f'path to the save data directory (default={self.Conf.save_dir})'
         )
 
-        self.CLIParser.add_argument('-L', '--lang',
-            metavar='LANG_CODE',
-            type=str,
-            # default=self.Conf.lang,
-            default='en',
-            choices=['en', 'de'],
-            required=False,
-            help=f'translation to use for output (default=en)'
-        )
+        # self.CLIParser.add_argument('-L', '--lang',
+        #     metavar='LANG_CODE',
+        #     type=str,
+        #     default=self.Conf.lang,
+        #     choices=['de', 'en'],
+        #     required=False,
+        #     help=f'translation to use for output (default={self.Conf.lang})'
+        # ) # commented-out until we have at least one translation
 
         # parse cli args
         self.cliargs: argparse.Namespace = self.CLIParser.parse_args()
@@ -78,7 +77,7 @@ class DP4_Core:
         self.Conf.save_dir = save_dir
         self.Conf.save_file = self.Conf.save_dir.joinpath(f'{self.cliargs.save_name}.json')
         lang_default = self.Conf.lang
-        self.Conf.lang = self.cliargs.lang
+        # self.Conf.lang = self.cliargs.lang # commented-out until we have at least one translation
 
         # init lang class
         self.Lang: DP4_Lang = DP4_Lang(lang_code=self.Conf.lang, default_lang=lang_default)
@@ -182,8 +181,7 @@ class DP4_Core:
         self.log(self.Lang.sim_walk, sleep=rffr(self.Conf.sim_walk_walking_duration), with_spinner=True, spinner_type='arrow')
 
         self.update_distance_traveled(start)
-
-        self.update_world_level()
+        self.update_region_level()
 
 
     def sim_sell(self) -> None:
@@ -502,11 +500,11 @@ class DP4_Core:
 
 
     def update_distance_traveled(self, started_walking_on: float) -> None:
-        self.Save.total_distance_traveled += self.Conf.walking_speed * ((time.time() - started_walking_on) / 3_600)
+        self.Save.total_distance_traveled += self.Conf.travel_speed * ((time.time() - started_walking_on) / 3_600)
 
 
-    def update_world_level(self) -> None:
-        self.Save.world_level = ((((8 * (self.Save.total_distance_traveled * 100) / 100 + 1) ** 0.5) - 1) / 2) + 1
+    def update_region_level(self) -> None:
+        self.Save.region_level = ((((8 * (self.Save.total_distance_traveled * 100) / 100 + 1) ** 0.5) - 1) / 2) + 1
 
 
 
@@ -517,8 +515,9 @@ class DP4_Core:
     def add_inventory_item(self, item_name: str) -> None:
         self.Save.total_items_looted += 1
 
+        item_value = self.item_value(item_name)
+
         if not self.Save.inventory.get(item_name):
-            item_value = self.item_value(item_name)
             self.Save.inventory[item_name] = {
                 'count': 1,
                 'item_value': item_value,
@@ -562,17 +561,18 @@ class DP4_Core:
     def print_head(self) -> None:
         w: int = 60
 
-        self.log(f'~~~=[ D e s t i n y \' s  P a t h  4 ]=~~~'.ljust(w, '~'), end='\n\n', sleep=0)
+        self.log(f'~~~-=[ D e s t i n y \' s   P a t h   4 ]=-~~~'.ljust(w, '~'), end='\n\n', sleep=0)
 
         self.log(f'       current shell: {self.Save.shell_name}', sleep=0)
         self.log(f'          hot wallet: {ff(self.Save.hot_wallet)} {self.Conf.currency_name}', sleep=0)
         self.log(f'         cold wallet: {ff(self.Save.cold_wallet)} {self.Conf.currency_name}', sleep=0)
-        self.log(f'               wagon: {max(0, self.Conf.inventory_size - len(self.Save.inventory.keys()))} empty boxes', end='\n\n', sleep=0)
-
-        self.log(f'         world level: {self.Save.world_level}', sleep=0)
+        self.log(f'               wagon: {max(0, self.Conf.inventory_size - len(self.Save.inventory.keys()))} empty boxes', end='\n', sleep=0)
 
         if self.Save.total_distance_traveled > 0:
-            self.log(f'   distance traveled: {ff(self.Save.total_distance_traveled, prec=3)} km', sleep=0)
+            self.log(f'   distance traveled: {ff(self.Save.total_distance_traveled, prec=3)} km', start='\n', sleep=0)
+
+        if self.Save.region_level > 1:
+            self.log(f'        region level: {ff(self.Save.region_level, prec=3)}', sleep=0)
 
         if self.Save.total_items_looted > 0:
             self.log(f'        items looted: {self.Save.total_items_looted}', sleep=0)
@@ -601,5 +601,4 @@ class DP4_Core:
         if self.Save.total_random_deaths > 0:
             self.log(f'  deaths by accident: {self.Save.total_random_deaths}', sleep=0)
 
-        # self.log(f'~~~=[ s:{ff((time.time() - self.Save.last_saved) / 60, prec=2) if self.Save.last_saved > 0 else "0.00"}m ][ f:{ff((time.time() - self.Save.first_played) / 3_600, prec=2)}h ]'.rjust(w, '~'), start='\n', end='\n\n\n', sleep=0)
         self.log(f'~~~=[ {self.Conf.save_name} ]'.rjust(w, '~'), start='\n', end='\n\n\n', sleep=0)

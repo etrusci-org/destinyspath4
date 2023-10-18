@@ -112,7 +112,7 @@ class DP4_Conf:
         '9': 0.00099,
     }
 
-    walking_speed: float = 50.3
+    travel_speed: float = 5.3
 
     inventory_size: int = 20
 
