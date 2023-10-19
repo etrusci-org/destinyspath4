@@ -12,7 +12,7 @@ class DP4_Conf:
 
     # directory for save files
     # can be overriden with cliargs
-    save_dir: pathlib.Path = game_dir.joinpath('data')
+    save_dir: pathlib.Path = game_dir.joinpath('save')
 
     # save file name without extension
     # can be overriden with cliargs
@@ -20,8 +20,10 @@ class DP4_Conf:
 
     # save file path
     # is set in DP4_Core.__init__
-    save_file: pathlib.Path = save_dir.joinpath(f'{save_name}.json')
+    save_file: pathlib.Path
 
+    # the default language code of the default DP4_Lang translation
+    # see DP4_Lang.__init__
     lang: str = 'en'
 
     # auto-save interval in seconds
@@ -34,10 +36,10 @@ class DP4_Conf:
     # see DP4_Event.new
     # valid range: 0.0 - 1.0
     event_group_chance: dict[str, float] = {
-        'death': 0.01,
-        'gift': 0.03,
-        'hacker': 0.05,
-        'container': 0.15,
+        'death': 0.017,
+        'gift': 0.033,
+        'hacker': 0.041,
+        'container': 0.11,
         'entity': 1.0,
     }
 
@@ -54,8 +56,9 @@ class DP4_Conf:
     }
 
     # filenames without extensions to load the string data from
-    # see DP4_String.__init__
+    # the file extension is expected to be .txt
     # see game/asset/ directory
+    # see DP4_String.__init__
     string_load_from: list[str] = [
         'deathcause_text',
         'container_name',
@@ -112,14 +115,13 @@ class DP4_Conf:
         '9': 0.00099,
     }
 
+    currency_name: str = 'koinz'
+
     travel_speed: float = 5.3
 
     inventory_size: int = 20
 
-    currency_name: str = 'koinz'
-
-
-
+    end_of_gameloop_duration: tuple[float, float] = (3.0, 5.0)
 
     sim_wakeup_wakingup_duration: tuple[float, float] = (3.0, 5.0)
 

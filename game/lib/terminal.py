@@ -1,4 +1,6 @@
 import os
+import sys
+import subprocess
 
 
 
@@ -12,21 +14,50 @@ __all__ = [
 
 
 
+# Thanks to James Spencer for the 'nt' part in the code below
+
+
+if os.name == 'nt':
+    import msvcrt
+    import ctypes
+
+    class _CursorInfo(ctypes.Structure):
+        _fields_ = [
+            ('size', ctypes.c_int),
+            ('visible', ctypes.c_byte),
+        ]
+
+
 def clear_terminal() -> None:
-    # investigate solution for B607: start_process_with_partial_path
     if os.name == 'posix':
-        os.system('clear')
+        subprocess.run(['clear'])
     elif os.name == 'nt':
-        os.system('cls')
+        subprocess.run(['cls'])
     else:
         print('\033c', end='')
 
 
-# investigate better solutions to toggle the cursor, e.g. without ansi codes
-
 def disable_terminal_cursor() -> None:
-    print('\033[?25l', end='')
+    if os.name == 'posix':
+        sys.stdout.write('\033[?25l')
+        sys.stdout.flush()
+
+    if os.name == 'nt':
+        ci = _CursorInfo()
+        handle = ctypes.windll.kernel32.GetStdHandle(-11)
+        ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+        ci.visible = False
+        ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))
 
 
 def enable_terminal_cursor() -> None:
-    print('\033[?25h', end='')
+    if os.name == 'posix':
+        sys.stdout.write('\033[?25h')
+        sys.stdout.flush()
+
+    if os.name == 'nt':
+        ci = _CursorInfo()
+        handle = ctypes.windll.kernel32.GetStdHandle(-11)
+        ctypes.windll.kernel32.GetConsoleCursorInfo(handle, ctypes.byref(ci))
+        ci.visible = True
+        ctypes.windll.kernel32.SetConsoleCursorInfo(handle, ctypes.byref(ci))

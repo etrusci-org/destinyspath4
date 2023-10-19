@@ -4,6 +4,26 @@ from .translation import L
 
 
 class DP4_Lang:
+    stats_label_shell_name: str  = '       current shell'
+    stats_text_shell_name: str = '{shell_name}'
+
+    stats_label_hot_wallet: str  = '          hot wallet'
+    stats_label_cold_wallet: str = '         cold wallet'
+    stats_text_wallet: str = '{currency_amount} {currency_name}'
+
+    stats_label_wagon: str = '               wagon'
+    stats_text_wagon: str = '{free_space_count} empty boxes' # also available: {inventory_size}
+
+    stats_label_total_distance_traveled: str = '   distance traveled'
+    stats_label_region_level: str = '        region level'
+    stats_label_total_items_looted: str = '        items looted'
+    stats_label_total_items_stolen_by_foes: str = '  items lost to foes'
+    stats_label_total_items_sold: str = '          items sold'
+    stats_label_total_trade_income: str = '        trade income'
+    stats_label_total_currency_stolen_by_hackers: str = '   stolen by hackers'
+    stats_label_total_kills: str = '               kills'
+    stats_label_total_deaths: str = '              deaths'
+
     sim_wakeup: str = '[wakeup] You wake up in a shell named <{shell_name}>'
     sim_walk: str = '[walk] You walk the path'
 

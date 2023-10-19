@@ -1,6 +1,6 @@
 # Destiny's Path 4
 
-An idle game that is *played* in a terminal window.
+An idle game that is *played* in a terminal window. No input is required once it is running.
 
 ---
 
@@ -9,12 +9,12 @@ An idle game that is *played* in a terminal window.
 
 ## Dependecies
 
-DP4 was written and tested on Python `3.9.2`.
-
 - [Python](https://www.python.org/downloads/) version `>= 3.9.2`  
   Linux: It's most probably already installed. Otherwise install **python3** with your favorite package manager.  
   Windows / MacOS / Other: Download the latest 3.x.x release and install it. Make sure to let the setup program *"add Python to your PATH"*.
 - A terminal to run it. The default on any platform should do the trick.
+
+Note: DP4 was written and tested on Python  `3.9.2`. Later Python versions may introduce breaking changes, but usually you're good with installing the latest one.
 
 ---
 
@@ -55,6 +55,8 @@ optional arguments:
 
 You can use either the short or long arguments. E.g. `-p` and `--play` are the same.
 
+Push `CTRL+C` to save and quit a running game.
+
 ---
 
 
@@ -94,12 +96,18 @@ dp4.py --play --save-dir /path/to/mysavedata
 dp4.py --play --save-name myothergame --save-dir /path/to/mysavedata
 ```
 
-
-
-
 ---
 
-## Game Text Glossary
+
+
+
+<!-- TODO: update this once everything is finalized for 1.0.0 
+
+## Game Output Text Glossary
+
+
+
+![screenshot](./screenshot.png)
 
 - **cold wallet**: Currency in the cold wallet. The cold wallet can not be attacked by hackers.
 - **current shell**: Current player name. Changes on rebirth.
@@ -119,6 +127,7 @@ dp4.py --play --save-name myothergame --save-dir /path/to/mysavedata
 - **wagon**: You temporarly store all the stuff you find on this wagon.
 
 ---
+-->
 
 
 
@@ -126,6 +135,10 @@ dp4.py --play --save-name myothergame --save-dir /path/to/mysavedata
 ## Thanks
 
 Some object strings were contributed by [orochihanma](https://twitch.tv/orochihanma) and [execratus](https://twitch.tv/exe_cratus).
+
+- [game/asset/object_name.txt](./game/asset/object_name.txt)
+- [game/asset/object_prefix.txt](./game/asset/object_prefix.txt)
+- [game/asset/object_suffix.txt](./game/asset/object_suffix.txt)
 
 ---
 

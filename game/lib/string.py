@@ -45,9 +45,12 @@ class DP4_String:
 
             parts = list(filter(None, parts))
 
-            name: str = ' '.join(parts).title()
+            name: str = ' '.join(parts)
 
             if type == 'entity' and name.lower() == self.current_shell_name.lower():
                 continue
+
+            if type != 'deathcause':
+                name = name.title()
 
             return name
