@@ -47,14 +47,14 @@ class DP4_Core:
             help=f'path to the save data directory (default={self.Conf.save_dir})',
         )
 
-        # self.CLIParser.add_argument('-L', '--lang',
-        #     metavar='LANG_CODE',
-        #     type=str,
-        #     default=self.Conf.lang,
-        #     choices=['de', 'en'],
-        #     required=False,
-        #     help=f'translation to use for output (default={self.Conf.lang})'
-        # ) # commented-out until we have at least one translation
+        self.CLIParser.add_argument('-t', '--translation',
+            metavar='LANGCODE',
+            type=str,
+            default=self.Conf.lang,
+            choices=self.Conf.lang_list,
+            required=False,
+            help=f'translation to use for output (choose from: {"|".join(self.Conf.lang_list)}, default={self.Conf.lang})'
+        )
 
         self.cliargs: argparse.Namespace = self.CLIParser.parse_args()
 
@@ -69,9 +69,9 @@ class DP4_Core:
 
         self.Save = DP4_Save(file=self.Conf.save_file)
 
-        lang_default = self.Conf.lang
-        # self.Conf.lang = self.cliargs.lang # commented-out until we have at least one translation
-        self.Lang: DP4_Lang = DP4_Lang(lang_code=self.Conf.lang, default_lang=lang_default)
+        self.Conf.lang = self.cliargs.translation
+
+        self.Lang: DP4_Lang = DP4_Lang(lang_code=self.Conf.lang)
 
 
 
@@ -80,26 +80,25 @@ class DP4_Core:
 
 
     def play(self) -> None:
-        clear_terminal()
-        disable_terminal_cursor()
-
-        self.Save.load()
-
-        if self.Save.first_played == 0:
-            self.Save.first_played = time.time()
-
-        if not self.Save.shell_name:
-            self.Save.shell_name = self.String.random_name('entity')
-
-        self.String.current_shell_name = self.Save.shell_name # set current shell name in string class to avoid having the same name after a restart/rebirth
-
         try:
+            clear_terminal()
+            disable_terminal_cursor()
+
+            self.Save.load()
+
+            if self.Save.first_played == 0:
+                self.Save.first_played = time.time()
+                self.Save.region_name = self.String.random_name('region', region_level=self.Save.region_level)
+                self.Save.shell_name = self.String.random_name('entity')
+
+            self.String.current_shell_name = self.Save.shell_name # set current shell name in string class to avoid having the same name after a restart/rebirth
+
             self.game_loop()
         except KeyboardInterrupt:
             exit(0)
         finally:
             self.Save.store()
-            self.log('Progress saved', start='\n', sleep=0)
+            self.log('progress saved', start='\n\n', sleep=0)
             enable_terminal_cursor()
 
 
@@ -167,7 +166,13 @@ class DP4_Core:
         self.log(self.Lang.sim_walk, sleep=rffr(self.Conf.sim_walk_walking_duration), with_spinner=True, spinner_type='arrow')
 
         self.update_distance_traveled(start)
+
+        prev_region_level: int = int(self.Save.region_level)
+
         self.update_region_level()
+
+        if int(self.Save.region_level) != prev_region_level:
+            self.log(self.Lang.sim_walk_enternewregion.format(region_name=self.Save.region_name, region_level=int(self.Save.region_level)), sleep=rffr(self.Conf.sim_walk_enternewregion_duration), with_spinner=True, spinner_type='binary')
 
 
     def sim_sell(self) -> None:
@@ -202,9 +207,9 @@ class DP4_Core:
 
             per_item_value_str = f'(1={ff(item_value)})' if item_count > 1 else ''
 
-            self.log(self.Lang.sim_sell_solditem.format(item_count=item_count, item_name=item_name, stack_value=ff(stack_value), per_item_value=per_item_value_str))
+            self.log(self.Lang.sim_sell_solditem.format(item_count=item_count, item_name=item_name, stack_value=ff(stack_value), per_item_value=per_item_value_str, currency_name=self.Conf.currency_name))
 
-        self.log(self.Lang.sim_sell_result.format(total_income=ff(total_income), item_count=total_items_sold))
+        self.log(self.Lang.sim_sell_result.format(total_income=ff(total_income), item_count=total_items_sold, currency_name=self.Conf.currency_name))
         self.log(self.Lang.sim_sell_leavingshop, sleep=rffr(self.Conf.sim_sell_leavevendor_duration), with_spinner=True)
 
 
@@ -218,7 +223,7 @@ class DP4_Core:
         self.Save.cold_wallet += transfer_amount
         self.Save.hot_wallet -= transfer_amount
 
-        self.log(self.Lang.sim_transfer_currency_result.format(transfer_amount=ff(transfer_amount)))
+        self.log(self.Lang.sim_transfer_currency_result.format(transfer_amount=ff(transfer_amount), currency_name=self.Conf.currency_name))
 
 
     def sim_death(self) -> None:
@@ -247,7 +252,7 @@ class DP4_Core:
         self.log(self.Lang.sim_gift_strangerapproaches, sleep=rffr(self.Conf.sim_gift_approach_duration), with_spinner=True)
 
         if not self.Event.win:
-            self.log(self.Lang.sim_gift_fail)
+            self.log(self.Lang.sim_gift_strangerwalksby)
             return
 
         self.log(self.Lang.sim_gift_yougetboxfromstranger)
@@ -278,7 +283,7 @@ class DP4_Core:
 
         self.Save.total_currency_stolen_by_hackers += stolen_amount
 
-        self.log(self.Lang.sim_hacker_youlostcurrency.format(stolen_amount=ff(stolen_amount)))
+        self.log(self.Lang.sim_hacker_youlostcurrency.format(stolen_amount=ff(stolen_amount), currency_name=self.Conf.currency_name))
 
 
     def sim_container(self) -> None:
@@ -381,7 +386,7 @@ class DP4_Core:
 
                     del self.Save.inventory[item_name]
 
-                    self.log(self.Lang.sim_fight_entitystealsitem.format(entity_name=entity_name, item_count=item_count, item_name=item_name, stack_value=ff(stack_value)))
+                    self.log(self.Lang.sim_fight_entitystealsitem.format(entity_name=entity_name, item_count=item_count, item_name=item_name))
 
             self.sim_rebirth()
             return
@@ -433,12 +438,8 @@ class DP4_Core:
 
 
     def update_region_level(self) -> None:
-        # prev: int = int(self.Save.region_level)
-
         self.Save.region_level = ((((8 * (self.Save.total_distance_traveled * 100) / 100 + 1) ** 0.5) - 1) / 2)
-
-        # if int(self.Save.region_level) != prev:
-        #     # reached next region
+        self.Save.region_name = self.String.random_name('region', region_level=self.Save.region_level)
 
 
 
@@ -477,7 +478,7 @@ class DP4_Core:
 
 
 
-    def log(self, msg: str = '', start: str = '', end: str = '\n', sleep: float = 1.5, with_spinner=False, spinner_type: str = 'dot') -> None:
+    def log(self, msg: str = '', start: str = '', end: str = '\n', sleep: float = 2.0, with_spinner=False, spinner_type: str = 'dot') -> None:
         orig_end = end
         if with_spinner:
             end = ' '
@@ -500,32 +501,30 @@ class DP4_Core:
         self.log(f'{self.Lang.stats_label_shell_name}: {self.Lang.stats_text_shell_name.format(shell_name=self.Save.shell_name)}', sleep=0)
         self.log(f'{self.Lang.stats_label_hot_wallet}: {self.Lang.stats_text_wallet.format(currency_amount=ff(self.Save.hot_wallet), currency_name=self.Conf.currency_name)}', sleep=0)
         self.log(f'{self.Lang.stats_label_cold_wallet}: {self.Lang.stats_text_wallet.format(currency_amount=ff(self.Save.cold_wallet), currency_name=self.Conf.currency_name)}', sleep=0)
-        self.log(f'{self.Lang.stats_label_wagon}: {self.Lang.stats_text_wagon.format(free_space_count=max(0, self.Conf.inventory_size - len(self.Save.inventory.keys())), inventory_size=self.Conf.inventory_size)}', end='\n', sleep=0)
+        self.log(f'{self.Lang.stats_label_wagon}: {self.Lang.stats_text_wagon.format(free_space_count=max(0, self.Conf.inventory_size - len(self.Save.inventory.keys())), inventory_size=self.Conf.inventory_size)}', end='\n\n', sleep=0)
 
-        # continue here later with moving texts to DP4_Lang
-        if self.Save.total_distance_traveled > 0:
-            self.log(f'{self.Lang.stats_label_total_distance_traveled}: {ff(self.Save.total_distance_traveled, prec=3)} km', start='\n', sleep=0)
-            self.log(f'{self.Lang.stats_label_region_level}: {ff(self.Save.region_level, prec=1)}', sleep=0)
+        self.log(f'{self.Lang.stats_label_total_distance_traveled}: {self.Lang.stats_text_total_distance_traveled.format(total_distance_traveled=ff(self.Save.total_distance_traveled, prec=3))}', sleep=0)
+        self.log(f'{self.Lang.stats_label_region}: {self.Lang.stats_text_region.format(region_level=int(self.Save.region_level), region_name=self.Save.region_name)}', sleep=0)
 
         if self.Save.total_items_looted > 0:
-            self.log(f'{self.Lang.stats_label_total_items_looted}: {self.Save.total_items_looted}', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_items_looted}: {self.Lang.stats_text_total_items_looted.format(total_items_looted=self.Save.total_items_looted)}', sleep=0)
 
         if self.Save.total_items_stolen_by_foes > 0:
-            self.log(f'{self.Lang.stats_label_total_items_stolen_by_foes}: {self.Save.total_items_stolen_by_foes}', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_items_stolen_by_foes}: {self.Lang.stats_text_total_items_stolen_by_foes.format(total_items_stolen_by_foes=self.Save.total_items_stolen_by_foes)}', sleep=0)
 
         if self.Save.total_items_sold > 0:
-            self.log(f'{self.Lang.stats_label_total_items_sold}: {self.Save.total_items_sold}', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_items_sold}: {self.Lang.stats_text_total_items_sold.format(total_items_sold=self.Save.total_items_sold)}', sleep=0)
 
         if self.Save.total_trade_income > 0:
-            self.log(f'{self.Lang.stats_label_total_trade_income}: {ff(self.Save.total_trade_income)} {self.Conf.currency_name}', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_trade_income}: {self.Lang.stats_text_total_trade_income.format(total_trade_income=ff(self.Save.total_trade_income), currency_name=self.Conf.currency_name)}', sleep=0)
 
         if self.Save.total_currency_stolen_by_hackers > 0:
-            self.log(f'{self.Lang.stats_label_total_currency_stolen_by_hackers}: {ff(self.Save.total_currency_stolen_by_hackers)} {self.Conf.currency_name}', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_currency_stolen_by_hackers}: {self.Lang.stats_text_total_currency_stolen_by_hackers.format(total_currency_stolen_by_hackers=ff(self.Save.total_currency_stolen_by_hackers), currency_name=self.Conf.currency_name)}', sleep=0)
 
         if self.Save.total_kills > 0:
-            self.log(f'{self.Lang.stats_label_total_kills}: {self.Save.total_kills}', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_kills}: {self.Lang.stats_text_total_kills.format(total_kills=self.Save.total_kills)}', sleep=0)
 
         if self.Save.total_deaths > 0:
-            self.log(f'{self.Lang.stats_label_total_deaths}: {self.Save.total_deaths} (fight:{self.Save.total_deaths_by_foes} random:{self.Save.total_random_deaths})', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_deaths}: {self.Lang.stats_text_total_deaths.format(total_deaths=self.Save.total_deaths, total_deaths_by_foes=self.Save.total_deaths_by_foes, total_random_deaths=self.Save.total_random_deaths)}', sleep=0)
 
         self.log(f'---'.rjust(w, '-'), start='\n', end='\n\n', sleep=0)

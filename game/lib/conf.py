@@ -24,7 +24,15 @@ class DP4_Conf:
 
     # the default language code of the default DP4_Lang translation
     # see DP4_Lang.__init__
+    # see translation.py
     lang: str = 'en'
+
+    # language codes to make available
+    lang_list: list[str] = [
+        'en',
+        # 'de',
+        # 'xy',
+    ]
 
     # auto-save interval in seconds
     # the game will always try to save on exit
@@ -39,7 +47,7 @@ class DP4_Conf:
         'death': 0.017,
         'gift': 0.033,
         'hacker': 0.041,
-        'container': 0.11,
+        'container': 0.211,
         'entity': 1.0,
     }
 
@@ -68,6 +76,8 @@ class DP4_Conf:
         'entity_prefix',
         'entity_name',
         'entity_suffix',
+        'region_prefix',
+        'region_suffix',
     ]
 
 
@@ -135,6 +145,7 @@ class DP4_Conf:
     sim_transfer_currency_transfer_amount_mod: float = 0.75
 
     sim_walk_walking_duration: tuple[float, float] = (3.0, 5.0)
+    sim_walk_enternewregion_duration: tuple[float, float] = (3.0, 5.0)
     sim_walk_startevent_chance: float = 0.13
 
     sim_death_dying_duration: tuple[float, float] = (3.0, 5.0)
@@ -164,5 +175,5 @@ class DP4_Conf:
     sim_fight_stolenitemsmin_count: int = 0
     sim_fight_stolenitemsmax_mod: float = 0.3
 
-    sim_find_loot_count: tuple[int, int] = (0, 4)
+    sim_find_loot_count: tuple[int, int] = (0, 5)
     sim_find_loot_wagoncheck_duration: tuple[float, float] = (3.0, 5.0)

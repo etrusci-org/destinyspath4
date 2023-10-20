@@ -21,7 +21,7 @@ class DP4_String:
                 self.string_data[k] = dump
 
 
-    def random_name(self, type: str) -> str:
+    def random_name(self, type: str, region_level: int = None) -> str:
         while True:
             parts: list[str] = []
 
@@ -43,14 +43,28 @@ class DP4_String:
                 parts.append(random.choice(self.string_data['entity_name']))
                 parts.append(random.choice(self.string_data['entity_suffix']) if random.random() < self.string_part_chance['entity_suffix'] else None)
 
+            if type == 'region':
+                parts.append(self.string_data['region_prefix'][int(region_level) % len(self.string_data['region_prefix'])])
+                parts.append(self.string_data['region_suffix'][int(region_level) % len(self.string_data['region_suffix'])])
+
             parts = list(filter(None, parts))
 
-            name: str = ' '.join(parts)
+            sep = ' ' if type != 'region' else ''
+
+            name: str = sep.join(parts)
 
             if type == 'entity' and name.lower() == self.current_shell_name.lower():
                 continue
 
-            if type != 'deathcause':
+            if type == 'deathcause':
+                name = name.lower()
+
+            if type == 'container' \
+            or type == 'object' \
+            or type == 'entity':
                 name = name.title()
+
+            if type == 'region':
+                name = name.capitalize()
 
             return name
