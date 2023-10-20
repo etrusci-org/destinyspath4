@@ -30,9 +30,9 @@ if os.name == 'nt':
 
 def clear_terminal() -> None:
     if os.name == 'posix':
-        subprocess.run(['clear'])
+        subprocess.run(['clear'], shell=True)
     elif os.name == 'nt':
-        subprocess.run(['cls'])
+        subprocess.run(['cls'], shell=True)
     else:
         print('\033c', end='')
 
