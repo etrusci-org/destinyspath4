@@ -65,12 +65,12 @@ class DP4_Core:
 
         # all peaches and cream if we reach this line
         self.Conf.save_dir = save_dir
-        self.Conf.save_file = self.Conf.save_dir.joinpath(f'{self.cliargs.save_name}.json')
+        self.Conf.save_name = self.cliargs.save_name
+        self.Conf.save_file = self.Conf.save_dir.joinpath(f'{self.Conf.save_name}.json')
 
         self.Save = DP4_Save(file=self.Conf.save_file)
 
         # self.Conf.lang = self.cliargs.translation
-
         self.Lang: DP4_Lang = DP4_Lang(lang_code=self.Conf.lang)
 
 
@@ -85,6 +85,8 @@ class DP4_Core:
             disable_terminal_cursor()
 
             self.Save.load()
+
+            self.init_world_files()
 
             if self.Save.first_played == 0:
                 self.Save.first_played = time.time()
@@ -434,6 +436,41 @@ class DP4_Core:
 
 
 
+    def init_world_files(self):
+        prefix_dump_file: pathlib.Path = self.Conf.asset_dir.joinpath('region_prefix.txt')
+        suffix_dump_file: pathlib.Path = self.Conf.asset_dir.joinpath('region_suffix.txt')
+        prefix_out_file: pathlib.Path = self.Conf.save_dir.joinpath(f'{self.Conf.save_name}.rp.txt')
+        suffix_out_file: pathlib.Path = self.Conf.save_dir.joinpath(f'{self.Conf.save_name}.rs.txt')
+
+        if prefix_out_file.is_file() \
+        and suffix_out_file.is_file():
+            print('loaded from chacche')
+            self.String.load_from_file('region_prefix', prefix_out_file)
+            self.String.load_from_file('region_suffix', suffix_out_file)
+            return
+
+        with open(prefix_dump_file, 'r') as prefix_df, \
+            open(suffix_dump_file, 'r') as suffix_df, \
+            open(prefix_out_file, 'w') as prefix_of, \
+            open(suffix_out_file, 'w') as suffix_of:
+            prefix_dump = prefix_df.read().split()
+            suffix_dump = suffix_df.read().split()
+
+            random.shuffle(prefix_dump)
+            random.shuffle(suffix_dump)
+
+            self.String.string_data['region_prefix']: list = []
+            self.String.string_data['region_suffix']: list = []
+
+            for line in prefix_dump:
+                prefix_of.write(f'{line}\n')
+                self.String.string_data['region_prefix'].append(line)
+
+            for line in suffix_dump:
+                suffix_of.write(f'{line}\n')
+                self.String.string_data['region_suffix'].append(line)
+
+
     def update_distance_traveled(self, started_walking_on: float) -> None:
         self.Save.total_distance_traveled += self.Conf.travel_speed * ((time.time() - started_walking_on) / 3_600)
 
@@ -441,11 +478,6 @@ class DP4_Core:
     def update_region_level(self) -> None:
         self.Save.region_level = ((((8 * (self.Save.total_distance_traveled * 100) / 100 + 1) ** 0.5) - 1) / 2)
         self.Save.region_name = self.String.region_name(self.Save.region_level)
-
-
-
-    # -----------------------------------------------------------------------
-
 
 
     def add_inventory_item(self, item_name: str) -> None:

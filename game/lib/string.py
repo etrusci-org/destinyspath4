@@ -11,14 +11,17 @@ class DP4_String:
         self.string_data: dict[str, list[str]] = {}
         self.current_shell_name: str = ''
 
-        for k in load_from:
-            file: pathlib.Path = asset_dir.joinpath(f'{k}.txt')
+        for key in load_from:
+            file: pathlib.Path = asset_dir.joinpath(f'{key}.txt')
+            self.load_from_file(key, file)
 
-            with open(file, 'r') as f:
-                dump = f.read().strip()
-                dump = dump.split('\n')
-                dump = list(filter(None, dump))
-                self.string_data[k] = dump
+
+    def load_from_file(self, key: str, file: pathlib.Path) -> None:
+        with open(file, 'r') as f:
+            dump = f.read().strip()
+            dump = dump.split('\n')
+            dump = list(filter(None, dump))
+            self.string_data[key] = dump
 
 
     def random_name(self, type: str) -> str:
@@ -64,9 +67,9 @@ class DP4_String:
 
 
     def region_name(self, region_level: float = 0.0) -> str:
-        region_level = int(region_level)
         name: str = ''
-        name = self.string_data['region_prefix'][int(region_level) % len(self.string_data['region_prefix'])]
-        name += self.string_data['region_prefix'][int(region_level) % len(self.string_data['region_prefix'])]
+        region_level = int(region_level)
+        name = self.string_data['region_prefix'][region_level % len(self.string_data['region_prefix'])]
+        name += self.string_data['region_suffix'][region_level % len(self.string_data['region_suffix'])]
         name = name.capitalize()
         return name

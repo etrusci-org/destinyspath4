@@ -76,8 +76,9 @@ class DP4_Conf:
         'entity_prefix',
         'entity_name',
         'entity_suffix',
-        'region_prefix',
-        'region_suffix',
+        # region_* will be added in DP4_Core.play with DP4_Core.init_world_files
+        # 'region_prefix',
+        # 'region_suffix',
     ]
 
 
