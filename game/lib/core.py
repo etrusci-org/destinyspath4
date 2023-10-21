@@ -24,7 +24,14 @@ class DP4_Core:
         self.Conf: DP4_Conf = DP4_Conf()
         self.Event: DP4_Event = DP4_Event(event_group_chance=self.Conf.event_group_chance)
         self.String: DP4_String = DP4_String(asset_dir=self.Conf.asset_dir, load_from=self.Conf.string_load_from, string_part_chance=self.Conf.string_part_chance)
-        self.CLIParser: argparse.ArgumentParser = argparse.ArgumentParser()
+        self.CLIParser: argparse.ArgumentParser = argparse.ArgumentParser(
+            description=f'''
+                An idle game that is played in a terminal window.
+                No input is required once it is running.
+                Auto-saves every {ff(self.Conf.autosave_interval / 60, prec=1)} minutes. Press CTRL+C to save and quit.
+            ''',
+            epilog='Made by arT2 (etrusci.org)',
+        )
 
         self.CLIParser.add_argument('-p', '--play',
             action='store_true',
