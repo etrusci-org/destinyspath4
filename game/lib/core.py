@@ -66,7 +66,7 @@ class DP4_Core:
         # all peaches and cream if we reach this line
         self.Conf.save_dir = save_dir
         self.Conf.save_name = self.cliargs.save_name
-        self.Conf.save_file = self.Conf.save_dir.joinpath(f'{self.Conf.save_name}.json')
+        self.Conf.save_file = self.Conf.save_dir.joinpath(f'{self.Conf.save_name}.dp4')
 
         self.Save = DP4_Save(file=self.Conf.save_file)
 
@@ -437,10 +437,10 @@ class DP4_Core:
 
 
     def init_world_files(self):
-        prefix_dump_file: pathlib.Path = self.Conf.asset_dir.joinpath('region_prefix.txt')
-        suffix_dump_file: pathlib.Path = self.Conf.asset_dir.joinpath('region_suffix.txt')
-        prefix_out_file: pathlib.Path = self.Conf.save_dir.joinpath(f'{self.Conf.save_name}.rp.txt')
-        suffix_out_file: pathlib.Path = self.Conf.save_dir.joinpath(f'{self.Conf.save_name}.rs.txt')
+        prefix_dump_file: pathlib.Path = self.Conf.asset_dir.joinpath('region_prefix.dat')
+        suffix_dump_file: pathlib.Path = self.Conf.asset_dir.joinpath('region_suffix.dat')
+        prefix_out_file: pathlib.Path = self.Conf.save_dir.joinpath(f'{self.Conf.save_name}.rp.dat')
+        suffix_out_file: pathlib.Path = self.Conf.save_dir.joinpath(f'{self.Conf.save_name}.rs.dat')
 
         if prefix_out_file.is_file() \
         and suffix_out_file.is_file():

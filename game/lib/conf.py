@@ -64,7 +64,7 @@ class DP4_Conf:
     }
 
     # filenames without extensions to load the string data from
-    # the file extension is expected to be .txt
+    # the file extension is expected to be .dat
     # see game/asset/ directory
     # see DP4_String.__init__
     string_load_from: list[str] = [

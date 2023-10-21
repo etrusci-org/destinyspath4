@@ -1,3 +1,4 @@
+import base64
 import json
 import pathlib
 import time
@@ -38,8 +39,8 @@ class DP4_Save:
             return
 
         try:
-            with open(self.file, 'r') as f:
-                dump: dict[str, any] = json.loads(f.read())
+            with open(self.file, 'rb') as f:
+                dump: dict[str, any] = json.loads(base64.b64decode(f.read().decode()))
 
                 for k, v in dump.items():
                     if type(v) == type(getattr(self, k)):
@@ -61,7 +62,9 @@ class DP4_Save:
             # print('> ', k, getattr(self, k))
             dump[k] = getattr(self, k)
 
-        dump = json.dumps(dump, indent=4)
+        dump = json.dumps(dump, indent=4).encode()
+        dump = base64.b64encode(dump)
 
-        with open(self.file, 'w') as f:
+
+        with open(self.file, 'wb') as f:
             f.write(dump)

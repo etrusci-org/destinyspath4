@@ -12,7 +12,7 @@ class DP4_String:
         self.current_shell_name: str = ''
 
         for key in load_from:
-            file: pathlib.Path = asset_dir.joinpath(f'{key}.txt')
+            file: pathlib.Path = asset_dir.joinpath(f'{key}.dat')
             self.load_from_file(key, file)
 
 
