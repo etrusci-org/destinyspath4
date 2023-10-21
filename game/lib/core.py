@@ -47,14 +47,14 @@ class DP4_Core:
             help=f'path to the save data directory (default={self.Conf.save_dir})',
         )
 
-        self.CLIParser.add_argument('-t', '--translation',
-            metavar='LANGCODE',
-            type=str,
-            default=self.Conf.lang,
-            choices=self.Conf.lang_list,
-            required=False,
-            help=f'translation to use for output (choose from: {"|".join(self.Conf.lang_list)}, default={self.Conf.lang})'
-        )
+        # self.CLIParser.add_argument('-t', '--translation',
+        #     metavar='LANGCODE',
+        #     type=str,
+        #     default=self.Conf.lang,
+        #     choices=self.Conf.lang_list,
+        #     required=False,
+        #     help=f'translation to use for output (choose from: {"|".join(self.Conf.lang_list)}, default={self.Conf.lang})'
+        # )
 
         self.cliargs: argparse.Namespace = self.CLIParser.parse_args()
 
@@ -69,7 +69,7 @@ class DP4_Core:
 
         self.Save = DP4_Save(file=self.Conf.save_file)
 
-        self.Conf.lang = self.cliargs.translation
+        # self.Conf.lang = self.cliargs.translation
 
         self.Lang: DP4_Lang = DP4_Lang(lang_code=self.Conf.lang)
 
@@ -88,7 +88,7 @@ class DP4_Core:
 
             if self.Save.first_played == 0:
                 self.Save.first_played = time.time()
-                self.Save.region_name = self.String.random_name('region', region_level=self.Save.region_level)
+                self.Save.region_name = self.String.region_name(self.Save.region_level)
                 self.Save.shell_name = self.String.random_name('entity')
 
             self.String.current_shell_name = self.Save.shell_name # set current shell name in string class to avoid having the same name after a restart/rebirth
@@ -98,7 +98,7 @@ class DP4_Core:
             exit(0)
         finally:
             self.Save.store()
-            self.log('progress saved', start='\n\n', sleep=0)
+            self.log('(progress saved)', start='\n\n', sleep=0)
             enable_terminal_cursor()
 
 
@@ -107,6 +107,7 @@ class DP4_Core:
 
         while True:
             clear_terminal()
+            disable_terminal_cursor()
 
             self.print_head()
 
@@ -439,7 +440,7 @@ class DP4_Core:
 
     def update_region_level(self) -> None:
         self.Save.region_level = ((((8 * (self.Save.total_distance_traveled * 100) / 100 + 1) ** 0.5) - 1) / 2)
-        self.Save.region_name = self.String.random_name('region', region_level=self.Save.region_level)
+        self.Save.region_name = self.String.region_name(self.Save.region_level)
 
 
 
@@ -499,27 +500,23 @@ class DP4_Core:
         self.log(f'===[ D e s t i n y \' s   P a t h   4 ]==='.ljust(w, '='), end='\n\n', sleep=0)
 
         self.log(f'{self.Lang.stats_label_shell_name}: {self.Lang.stats_text_shell_name.format(shell_name=self.Save.shell_name)}', sleep=0)
+        self.log(f'{self.Lang.stats_label_region}: {self.Lang.stats_text_region.format(region_level=int(self.Save.region_level), region_name=self.Save.region_name)}', sleep=0)
         self.log(f'{self.Lang.stats_label_hot_wallet}: {self.Lang.stats_text_wallet.format(currency_amount=ff(self.Save.hot_wallet), currency_name=self.Conf.currency_name)}', sleep=0)
         self.log(f'{self.Lang.stats_label_cold_wallet}: {self.Lang.stats_text_wallet.format(currency_amount=ff(self.Save.cold_wallet), currency_name=self.Conf.currency_name)}', sleep=0)
-        self.log(f'{self.Lang.stats_label_wagon}: {self.Lang.stats_text_wagon.format(free_space_count=max(0, self.Conf.inventory_size - len(self.Save.inventory.keys())), inventory_size=self.Conf.inventory_size)}', end='\n\n', sleep=0)
+        self.log(f'{self.Lang.stats_label_wagon}: {self.Lang.stats_text_wagon.format(free_space_count=max(0, self.Conf.inventory_size - len(self.Save.inventory.keys())), inventory_size=self.Conf.inventory_size)}', sleep=0)
 
-        self.log(f'{self.Lang.stats_label_total_distance_traveled}: {self.Lang.stats_text_total_distance_traveled.format(total_distance_traveled=ff(self.Save.total_distance_traveled, prec=3))}', sleep=0)
-        self.log(f'{self.Lang.stats_label_region}: {self.Lang.stats_text_region.format(region_level=int(self.Save.region_level), region_name=self.Save.region_name)}', sleep=0)
+        if self.Save.total_distance_traveled > 0:
+            self.log(f'           -  t  o  t  a  l  -', start='\n', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_distance_traveled}: {self.Lang.stats_text_total_distance_traveled.format(total_distance_traveled=ff(self.Save.total_distance_traveled, prec=3))}', sleep=0)
 
         if self.Save.total_items_looted > 0:
-            self.log(f'{self.Lang.stats_label_total_items_looted}: {self.Lang.stats_text_total_items_looted.format(total_items_looted=self.Save.total_items_looted)}', sleep=0)
-
-        if self.Save.total_items_stolen_by_foes > 0:
-            self.log(f'{self.Lang.stats_label_total_items_stolen_by_foes}: {self.Lang.stats_text_total_items_stolen_by_foes.format(total_items_stolen_by_foes=self.Save.total_items_stolen_by_foes)}', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_items_looted}: {self.Lang.stats_text_total_items_looted.format(total_items_looted=self.Save.total_items_looted, total_items_stolen_by_foes=self.Save.total_items_stolen_by_foes)}', sleep=0)
 
         if self.Save.total_items_sold > 0:
             self.log(f'{self.Lang.stats_label_total_items_sold}: {self.Lang.stats_text_total_items_sold.format(total_items_sold=self.Save.total_items_sold)}', sleep=0)
 
         if self.Save.total_trade_income > 0:
-            self.log(f'{self.Lang.stats_label_total_trade_income}: {self.Lang.stats_text_total_trade_income.format(total_trade_income=ff(self.Save.total_trade_income), currency_name=self.Conf.currency_name)}', sleep=0)
-
-        if self.Save.total_currency_stolen_by_hackers > 0:
-            self.log(f'{self.Lang.stats_label_total_currency_stolen_by_hackers}: {self.Lang.stats_text_total_currency_stolen_by_hackers.format(total_currency_stolen_by_hackers=ff(self.Save.total_currency_stolen_by_hackers), currency_name=self.Conf.currency_name)}', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_trade_income}: {self.Lang.stats_text_total_trade_income.format(total_trade_income=ff(self.Save.total_trade_income), currency_name=self.Conf.currency_name, total_currency_stolen_by_hackers=ff(self.Save.total_currency_stolen_by_hackers))}', sleep=0)
 
         if self.Save.total_kills > 0:
             self.log(f'{self.Lang.stats_label_total_kills}: {self.Lang.stats_text_total_kills.format(total_kills=self.Save.total_kills)}', sleep=0)

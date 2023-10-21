@@ -17,7 +17,6 @@ class DP4_Lang:
     stats_label_total_items_stolen_by_foes: str
     stats_label_total_items_sold: str
     stats_label_total_trade_income: str
-    stats_label_total_currency_stolen_by_hackers: str
     stats_label_total_kills: str
     stats_label_total_deaths: str
     stats_text_total_distance_traveled: str
@@ -26,7 +25,6 @@ class DP4_Lang:
     stats_text_total_items_stolen_by_foes: str
     stats_text_total_items_sold: str
     stats_text_total_trade_income: str
-    stats_text_total_currency_stolen_by_hackers: str
     stats_text_total_kills: str
     stats_text_total_deaths: str
     sim_wakeup: str
