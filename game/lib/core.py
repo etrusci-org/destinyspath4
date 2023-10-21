@@ -47,6 +47,7 @@ class DP4_Core:
             help=f'path to the save data directory (default={self.Conf.save_dir})',
         )
 
+        # lang option disabled until there is a second translation
         # self.CLIParser.add_argument('-t', '--translation',
         #     metavar='LANGCODE',
         #     type=str,
@@ -241,14 +242,14 @@ class DP4_Core:
 
 
     def sim_rebirth(self) -> None:
-        self.log(self.Lang.sim_rebirth_waiting, sleep=rffr(self.Conf.sim_rebirth_waiting_duration), with_spinner=True)
+        self.log(self.Lang.sim_rebirth_waiting, sleep=rffr(self.Conf.sim_rebirth_waiting_duration), with_spinner=True, spinner_type='spin')
 
         self.Save.shell_name = self.String.random_name('entity')
         self.String.current_shell_name = self.Save.shell_name
 
         self.sim_wakeup()
 
-        self.log(self.Lang.sim_rebirth_calibrating, sleep=rffr(self.Conf.sim_rebirth_calibrate_duration), with_spinner=True)
+        self.log(self.Lang.sim_rebirth_calibrating, sleep=rffr(self.Conf.sim_rebirth_calibrate_duration), with_spinner=True, spinner_type='binary')
 
 
     def sim_gift(self) -> None:

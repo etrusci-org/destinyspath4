@@ -48,9 +48,7 @@ class DP4_String:
 
             parts = list(filter(None, parts))
 
-            sep = ' ' if type != 'region' else ''
-
-            name: str = sep.join(parts)
+            name: str = ' '.join(parts)
 
             if type == 'entity' and name.lower() == self.current_shell_name.lower():
                 continue

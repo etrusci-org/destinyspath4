@@ -81,9 +81,6 @@ class DP4_Conf:
         # 'region_suffix',
     ]
 
-
-
-
     item_base_value_mod: float = 0.00001
 
     item_name_unknown_char_value: float = 0.00001

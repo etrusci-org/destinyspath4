@@ -12,7 +12,6 @@ class DP4_Save:
 
     def __init__(self, file: pathlib.Path) -> None:
         self.file = file
-
         self.first_played: float = 0.0
         self.last_saved: float = 0.0
         self.shell_name: str = ''
@@ -21,7 +20,6 @@ class DP4_Save:
         self.hot_wallet: float = 0.0
         self.cold_wallet: float = 0.0
         self.inventory: dict[str, dict[str, any]] = {}
-
         self.total_distance_traveled: float = 0.0
         self.total_items_looted: int = 0
         self.total_items_sold: int = 0
@@ -44,7 +42,6 @@ class DP4_Save:
 
                 for k, v in dump.items():
                     if type(v) == type(getattr(self, k)):
-                        # print('< ', k, v)
                         setattr(self, k, v)
 
         except Exception as e:
@@ -59,7 +56,6 @@ class DP4_Save:
 
         for k in vars(self):
             if k == 'file': continue
-            # print('> ', k, getattr(self, k))
             dump[k] = getattr(self, k)
 
         dump = json.dumps(dump, indent=4).encode()
