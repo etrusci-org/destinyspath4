@@ -44,10 +44,10 @@ class DP4_Conf:
     # see DP4_Event.new
     # valid range: 0.0 - 1.0
     event_group_chance: dict[str, float] = {
-        'death': 0.017,
-        'gift': 0.033,
-        'hacker': 0.041,
-        'container': 0.211,
+        'death': 0.03,
+        'gift': 0.04,
+        'hacker': 0.05,
+        'container': 0.21,
         'entity': 1.0,
     }
 
@@ -129,49 +129,49 @@ class DP4_Conf:
 
     inventory_size: int = 20
 
-    end_of_gameloop_duration: tuple[float, float] = (3.0, 5.0)
+    end_of_gameloop_duration: tuple[float, float] = (4.0, 7.0)
 
-    sim_wakeup_wakingup_duration: tuple[float, float] = (3.0, 5.0)
+    sim_wakeup_wakingup_duration: tuple[float, float] = (5.0, 7.0)
 
-    sim_sell_searchvendor_duration: tuple[float, float] = (3.0, 5.0)
-    sim_sell_negvendormod_duration: tuple[float, float] = (3.0, 5.0)
-    sim_sell_vendormod_range: tuple[float, float] = (0.5, 1.5)
-    sim_sell_leavevendor_duration: tuple[float, float] = (3.0, 5.0)
+    sim_sell_searchvendor_duration: tuple[float, float] = (7.0, 20.0)
+    sim_sell_negvendormod_duration: tuple[float, float] = (7.0, 15.0)
+    sim_sell_vendormod_range: tuple[float, float] = (0.5, 1.25)
+    sim_sell_leavevendor_duration: tuple[float, float] = (2.0, 5.0)
 
     sim_transfer_currency_treshold: float = 1.0
-    sim_transfer_currency_transfer_duration: tuple[float, float] = (3.0, 5.0)
+    sim_transfer_currency_transfer_duration: tuple[float, float] = (10.0, 30.0)
     sim_transfer_currency_transfer_amount_mod: float = 0.75
 
-    sim_walk_walking_duration: tuple[float, float] = (3.0, 5.0)
-    sim_walk_enternewregion_duration: tuple[float, float] = (3.0, 5.0)
-    sim_walk_startevent_chance: float = 0.13
+    sim_walk_walking_duration: tuple[float, float] = (5.0, 15.0)
+    sim_walk_enternewregion_duration: tuple[float, float] = (10.0, 20.0)
+    sim_walk_startevent_chance: float = 0.11
 
-    sim_death_dying_duration: tuple[float, float] = (3.0, 5.0)
+    sim_death_dying_duration: tuple[float, float] = (15.0, 30.0)
 
-    sim_rebirth_waiting_duration: tuple[float, float] = (3.0, 5.0)
-    sim_rebirth_calibrate_duration: tuple[float, float] = (3.0, 5.0)
+    sim_rebirth_waiting_duration: tuple[float, float] = (7.0, 20.0)
+    sim_rebirth_calibrate_duration: tuple[float, float] = (5.0, 10.0)
 
-    sim_gift_approach_duration: tuple[float, float] = (2.0, 5.0)
-    sim_gift_opengift_duration: tuple[float, float] = (2.0, 5.0)
+    sim_gift_approach_duration: tuple[float, float] = (3.0, 8.0)
+    sim_gift_opengift_duration: tuple[float, float] = (5.0, 10.0)
 
-    sim_hacker_attack_duration: tuple[float, float] = (3.0, 5.0)
-    sim_hacker_hacking_duration: tuple[float, float] = (3.0, 5.0)
+    sim_hacker_attack_duration: tuple[float, float] = (15.0, 30.0)
+    sim_hacker_hacking_duration: tuple[float, float] = (20.0, 40.0)
 
-    sim_container_checking_duration: tuple[float, float] = (3.0, 5.0)
+    sim_container_checking_duration: tuple[float, float] = (4.0, 8.0)
 
     sim_entity_attitude: list[str] = ['friendly', 'hostile']
-    sim_entity_acting_duration: tuple[float, float] = (3.0, 5.0)
+    sim_entity_acting_duration: tuple[float, float] = (3.0, 8.0)
     sim_entity_entityflee_chance_range: tuple[float, float] = (0.0, 0.5)
     sim_entity_playerflee_chance_range: tuple[float, float] = (0.0, 0.5)
     sim_entity_conversation_chance_range: tuple[float, float] = (0.0, 0.5)
 
-    sim_conversation_convo_duration: tuple[float, float] = (3.0, 5.0)
+    sim_conversation_convo_duration: tuple[float, float] = (10.0, 30.0)
 
-    sim_fight_fighting_duration: tuple[float, float] = (3.0, 5.0)
-    sim_fight_searchcorpse_duration: tuple[float, float] = (3.0, 5.0)
-    sim_fight_hidecorpse_duration: tuple[float, float] = (3.0, 5.0)
+    sim_fight_fighting_duration: tuple[float, float] = (10.0, 20.0)
+    sim_fight_searchcorpse_duration: tuple[float, float] = (4.0, 7.0)
+    sim_fight_hidecorpse_duration: tuple[float, float] = (8.0, 14.0)
     sim_fight_stolenitemsmin_count: int = 0
     sim_fight_stolenitemsmax_mod: float = 0.3
 
     sim_find_loot_count: tuple[int, int] = (0, 5)
-    sim_find_loot_wagoncheck_duration: tuple[float, float] = (3.0, 5.0)
+    sim_find_loot_wagoncheck_duration: tuple[float, float] = (3.0, 7.0)
