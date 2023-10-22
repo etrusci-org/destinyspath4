@@ -26,11 +26,10 @@ class DP4_Core:
         self.String: DP4_String = DP4_String(asset_dir=self.Conf.asset_dir, load_from=self.Conf.string_load_from, string_part_chance=self.Conf.string_part_chance)
         self.CLIParser: argparse.ArgumentParser = argparse.ArgumentParser(
             description=f'''
-                An idle game that is played in a terminal window.
-                No input is required once it is running.
+                An idle game that is played in a terminal window. No input is required once it is running. See README for details.
                 Auto-saves every {ff(self.Conf.autosave_interval / 60, prec=1)} minutes. Press CTRL+C to save and quit.
             ''',
-            epilog='Made by arT2 (etrusci.org)',
+            epilog='Made by arT2 (etrusci.org). Source: https://github.com/etrusci-org/destinyspath4',
         )
 
         self.CLIParser.add_argument('-p', '--play',
@@ -183,7 +182,7 @@ class DP4_Core:
         self.update_region_level()
 
         if int(self.Save.region_level) != prev_region_level:
-            self.log(self.Lang.sim_walk_enternewregion.format(region_name=self.Save.region_name, region_level=int(self.Save.region_level)), sleep=rffr(self.Conf.sim_walk_enternewregion_duration), with_spinner=True, spinner_type='binary')
+            self.log(self.Lang.sim_walk_enternewregion.format(region_name=self.Save.region_name, region_level=int(self.Save.region_level)), sleep=rffr(self.Conf.sim_walk_enternewregion_duration), with_spinner=True, spinner_type='arrow')
 
 
     def sim_sell(self) -> None:
@@ -249,14 +248,14 @@ class DP4_Core:
 
 
     def sim_rebirth(self) -> None:
-        self.log(self.Lang.sim_rebirth_waiting, sleep=rffr(self.Conf.sim_rebirth_waiting_duration), with_spinner=True, spinner_type='spin')
+        self.log(self.Lang.sim_rebirth_waiting, sleep=rffr(self.Conf.sim_rebirth_waiting_duration), with_spinner=True)
 
         self.Save.shell_name = self.String.random_name('entity')
         self.String.current_shell_name = self.Save.shell_name
 
         self.sim_wakeup()
 
-        self.log(self.Lang.sim_rebirth_calibrating, sleep=rffr(self.Conf.sim_rebirth_calibrate_duration), with_spinner=True, spinner_type='binary')
+        self.log(self.Lang.sim_rebirth_calibrating, sleep=rffr(self.Conf.sim_rebirth_calibrate_duration), with_spinner=True, spinner_type='binary2')
 
 
     def sim_gift(self) -> None:
@@ -391,7 +390,6 @@ class DP4_Core:
                 stolen_items: list = random.sample(sorted(self.Save.inventory), stolen_items_count)
                 for item_name in stolen_items:
                     item_count = self.Save.inventory[item_name]['count']
-                    stack_value = self.Save.inventory[item_name]['stack_value']
 
                     self.Save.total_items_stolen_by_foes += item_count
 
@@ -430,6 +428,8 @@ class DP4_Core:
             self.log(self.Lang.sim_find_loot_finditem.format(item_name=item_name))
 
         self.log(self.Lang.sim_find_loot_checkwagonspace, sleep=rffr(self.Conf.sim_find_loot_wagoncheck_duration), with_spinner=True)
+
+        random.shuffle(found_items)
 
         for item_name in found_items:
             if len(self.Save.inventory.keys()) >= self.Conf.inventory_size and not self.Save.inventory.get(item_name):
@@ -546,8 +546,7 @@ class DP4_Core:
         self.log(f'{self.Lang.stats_label_wagon}: {self.Lang.stats_text_wagon.format(free_space_count=max(0, self.Conf.inventory_size - len(self.Save.inventory.keys())), inventory_size=self.Conf.inventory_size)}', sleep=0)
 
         if self.Save.total_distance_traveled > 0:
-            self.log(f'           -  t  o  t  a  l  -', start='\n', sleep=0)
-            self.log(f'{self.Lang.stats_label_total_distance_traveled}: {self.Lang.stats_text_total_distance_traveled.format(total_distance_traveled=ff(self.Save.total_distance_traveled, prec=3))}', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_distance_traveled}: {self.Lang.stats_text_total_distance_traveled.format(total_distance_traveled=ff(self.Save.total_distance_traveled, prec=3))}', start='\n', sleep=0)
 
         if self.Save.total_items_looted > 0:
             self.log(f'{self.Lang.stats_label_total_items_looted}: {self.Lang.stats_text_total_items_looted.format(total_items_looted=self.Save.total_items_looted, total_items_stolen_by_foes=self.Save.total_items_stolen_by_foes)}', sleep=0)
