@@ -61,7 +61,7 @@ python.exe dp4.py --play
 C:/path/to/python3/python.exe dp4.py --play
 ```
 
-Progress will be auto-saved from time to time or when you quit the game with `CTRL+C`.
+Progress will be auto-saved from time to time or when you quit the game by pressing `CTRL`+`C`.
 
 ---
 
