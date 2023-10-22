@@ -16,7 +16,7 @@ class DP4_Conf:
 
     # save file name without extension
     # can be overriden with cliargs
-    save_name: str = 'save1'
+    save_name: str = 'game1'
 
     # save file path
     # is set in DP4_Core.__init__

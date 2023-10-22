@@ -1,5 +1,4 @@
 import argparse
-import base64
 import pathlib
 import random
 import sys
@@ -82,15 +81,18 @@ class DP4_Core:
         self.Lang: DP4_Lang = DP4_Lang(lang_code=self.Conf.lang)
 
 
-
     # -----------------------------------------------------------------------
-
 
 
     def play(self) -> None:
         try:
             clear_terminal()
             disable_terminal_cursor()
+
+            # self.log(f'Loading')
+            # self.log(f'save-name: {self.Conf.save_name}')
+            # self.log(f'save-dir: {self.Conf.save_dir}')
+            # self.log(f'save-file: {self.Save.file}')
 
             self.Save.load()
 
@@ -162,9 +164,7 @@ class DP4_Core:
         if self.Event.group == 'entity': self.sim_entity()
 
 
-
     # -----------------------------------------------------------------------
-
 
 
     def sim_wakeup(self) -> None:
@@ -440,9 +440,7 @@ class DP4_Core:
             self.add_inventory_item(item_name)
 
 
-
     # -----------------------------------------------------------------------
-
 
 
     def init_world_files(self):
@@ -453,11 +451,10 @@ class DP4_Core:
 
         if prefix_out_file.is_file() \
         and suffix_out_file.is_file():
-            with open(prefix_out_file, 'rb') as prefix_of, \
-                 open(suffix_out_file, 'rb') as suffix_of:
-
-                prefix_dump = base64.b64decode(prefix_of.read()).split()
-                suffix_dump = base64.b64decode(suffix_of.read()).split()
+            with open(prefix_out_file, 'r') as prefix_of, \
+                 open(suffix_out_file, 'r') as suffix_of:
+                prefix_dump = prefix_of.read().split()
+                suffix_dump = suffix_of.read().split()
 
                 self.String.string_data['region_prefix']: list[str] = prefix_dump
                 self.String.string_data['region_suffix']: list[str] = suffix_dump
@@ -465,8 +462,8 @@ class DP4_Core:
 
         with open(prefix_dump_file, 'r') as prefix_df, \
             open(suffix_dump_file, 'r') as suffix_df, \
-            open(prefix_out_file, 'wb') as prefix_of, \
-            open(suffix_out_file, 'wb') as suffix_of:
+            open(prefix_out_file, 'w') as prefix_of, \
+            open(suffix_out_file, 'w') as suffix_of:
 
             prefix_dump = prefix_df.read().split()
             suffix_dump = suffix_df.read().split()
@@ -480,8 +477,8 @@ class DP4_Core:
             self.String.string_data['region_prefix']: list[str] = prefix_dump
             self.String.string_data['region_suffix']: list[str] = suffix_dump
 
-            prefix_of.write(base64.b64encode('\n'.join(prefix_dump).encode()))
-            suffix_of.write(base64.b64encode('\n'.join(suffix_dump).encode()))
+            prefix_of.write('\n'.join(prefix_dump))
+            suffix_of.write('\n'.join(suffix_dump))
 
 
     def update_distance_traveled(self, started_walking_on: float) -> None:
@@ -519,9 +516,7 @@ class DP4_Core:
         return item_value
 
 
-
     # -----------------------------------------------------------------------
-
 
 
     def log(self, msg: str = '', start: str = '', end: str = '\n', sleep: float = 2.0, with_spinner=False, spinner_type: str = 'dot') -> None:
@@ -542,7 +537,7 @@ class DP4_Core:
     def print_head(self) -> None:
         w: int = 60
 
-        self.log(f'===[ D e s t i n y \' s   P a t h   4 ]==='.ljust(w, '='), end='\n\n', sleep=0)
+        self.log(f'--~[ D e s t i n y \' s  P a t h  4 ]~---~{{ {self.Conf.save_name} }}~--'.ljust(w, '-'), end='\n\n', sleep=0)
 
         self.log(f'{self.Lang.stats_label_shell_name}: {self.Lang.stats_text_shell_name.format(shell_name=self.Save.shell_name)}', sleep=0)
         self.log(f'{self.Lang.stats_label_region}: {self.Lang.stats_text_region.format(region_level=int(self.Save.region_level), region_name=self.Save.region_name)}', sleep=0)
@@ -568,4 +563,4 @@ class DP4_Core:
         if self.Save.total_deaths > 0:
             self.log(f'{self.Lang.stats_label_total_deaths}: {self.Lang.stats_text_total_deaths.format(total_deaths=self.Save.total_deaths, total_deaths_by_foes=self.Save.total_deaths_by_foes, total_random_deaths=self.Save.total_random_deaths)}', sleep=0)
 
-        self.log(f'---'.rjust(w, '-'), start='\n', end='\n\n', sleep=0)
+        self.log('-' * w, start='\n', end='\n\n', sleep=0)
