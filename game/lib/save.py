@@ -38,7 +38,7 @@ class DP4_Save:
 
         try:
             with open(self.file, 'rb') as f:
-                dump: dict[str, any] = json.loads(base64.b64decode(f.read().decode()))
+                dump: dict[str, any] = json.loads(base64.b64decode(f.read()))
 
                 for k, v in dump.items():
                     if type(v) == type(getattr(self, k)):

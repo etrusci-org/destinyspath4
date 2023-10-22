@@ -13,15 +13,15 @@ TRANSLATION: dict[str, dict[str, str]] = {}
 
 # en - english (default)
 TRANSLATION['en'] = {
-    'stats_label_shell_name': '       current shell',
+    'stats_label_shell_name': '               shell',
     'stats_text_shell_name': '{shell_name}',
 
     'stats_label_hot_wallet': '          hot wallet',
     'stats_label_cold_wallet': '         cold wallet',
     'stats_text_wallet': '{currency_amount} {currency_name}',
 
-    'stats_label_wagon': '         wagon space',
-    'stats_text_wagon': '{free_space_count} / {inventory_size}',
+    'stats_label_wagon': '               wagon',
+    'stats_text_wagon': '{free_space_count} / {inventory_size} free boxes',
 
     'stats_label_total_distance_traveled': '   distance traveled',
     'stats_text_total_distance_traveled': '{total_distance_traveled} km',
