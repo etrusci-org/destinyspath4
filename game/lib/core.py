@@ -1,4 +1,5 @@
 import argparse
+import base64
 import pathlib
 import random
 import sys
@@ -452,31 +453,35 @@ class DP4_Core:
 
         if prefix_out_file.is_file() \
         and suffix_out_file.is_file():
-            print('loaded from chacche')
-            self.String.load_from_file('region_prefix', prefix_out_file)
-            self.String.load_from_file('region_suffix', suffix_out_file)
+            with open(prefix_out_file, 'rb') as prefix_of, \
+                 open(suffix_out_file, 'rb') as suffix_of:
+
+                prefix_dump = base64.b64decode(prefix_of.read()).split()
+                suffix_dump = base64.b64decode(suffix_of.read()).split()
+
+                self.String.string_data['region_prefix']: list[str] = prefix_dump
+                self.String.string_data['region_suffix']: list[str] = suffix_dump
             return
 
         with open(prefix_dump_file, 'r') as prefix_df, \
             open(suffix_dump_file, 'r') as suffix_df, \
-            open(prefix_out_file, 'w') as prefix_of, \
-            open(suffix_out_file, 'w') as suffix_of:
+            open(prefix_out_file, 'wb') as prefix_of, \
+            open(suffix_out_file, 'wb') as suffix_of:
+
             prefix_dump = prefix_df.read().split()
             suffix_dump = suffix_df.read().split()
+
+            prefix_dump = list(filter(None, prefix_dump))
+            suffix_dump = list(filter(None, suffix_dump))
 
             random.shuffle(prefix_dump)
             random.shuffle(suffix_dump)
 
-            self.String.string_data['region_prefix']: list = []
-            self.String.string_data['region_suffix']: list = []
+            self.String.string_data['region_prefix']: list[str] = prefix_dump
+            self.String.string_data['region_suffix']: list[str] = suffix_dump
 
-            for line in prefix_dump:
-                prefix_of.write(f'{line}\n')
-                self.String.string_data['region_prefix'].append(line)
-
-            for line in suffix_dump:
-                suffix_of.write(f'{line}\n')
-                self.String.string_data['region_suffix'].append(line)
+            prefix_of.write(base64.b64encode('\n'.join(prefix_dump).encode()))
+            suffix_of.write(base64.b64encode('\n'.join(suffix_dump).encode()))
 
 
     def update_distance_traveled(self, started_walking_on: float) -> None:
