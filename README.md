@@ -1,8 +1,10 @@
 # Destiny's Path 4
 
-An idle game that is *played* in a terminal window. No input is required once it is running.
+An idle-game that is *played* in the terminal. No user input is necessary when it runs. Everything that happens depends on your luck.
 
-It just exists for relaxation/learning reasons (same reason i never released part 1-3)... Enjoy!
+It was created just for fun/learning. Like part 1-3, which I never made public ;-)
+
+<!-- ![screenshot](./screenshot.png) -->
 
 ---
 
@@ -11,12 +13,10 @@ It just exists for relaxation/learning reasons (same reason i never released par
 
 ## Dependecies
 
-- **[Python](https://www.python.org/downloads/) version `>= 3.9.2`**
-  - On Linux: It's most probably already installed. Otherwise install **python3** with your favorite package manager.
-  - On Windows / MacOS / Other: Download the latest `3.x.x` release and install it. Make sure to let the setup program *"add Python to your PATH"*.
+- [Python](https://www.python.org/downloads/) version `>= 3.9.2`
 - A terminal to run it. The default on any platform should do the trick.
 
-**Note**: DP4 was written and tested on Python  `3.9.2`. Later Python versions may introduce breaking changes, but usually you're good with installing the latest one. You can have multiple Python versions installed at the same time.
+**Note**: DP4 was written and tested on Python  `3.9.2`. **Later Python versions could introduce breaking changes**, but usually you're good with installing the latest one. You can have multiple Python versions installed at the same time.
 
 ---
 
@@ -25,8 +25,11 @@ It just exists for relaxation/learning reasons (same reason i never released par
 
 ## Install / Update
 
-1. [Download](https://github.com/etrusci-org/destinyspath4/releases) the latest release.
-2. Unpack the compressed release file and copy the **destinyspath4-x.x.x** directory to any place on your system.
+1. Install [Python](https://www.python.org/downloads/).
+  On *nix: It's most probably already installed. Otherwise install **python3** with your favorite package manager.
+  On Windows/Other: Download the version for your operating system and install it. Make sure to let the setup program *"add Python to your PATH"*.
+2. [Download](https://github.com/etrusci-org/destinyspath4/releases) the latest DP4 release.
+3. Unpack the compressed release file and copy the **destinyspath4-x.x.x** directory to any place on your system.
 
 If you want to update to a new release, just repeat those steps and copy over the previous save files.
 
@@ -43,25 +46,25 @@ Open a terminal window and change into the `game/` directory:
 cd path/to/destinyspath4/game/
 ```
 
-Play the game:
+
+On *nix systems:
 
 ```bash
-# On *nix:
 ./dp4.py --play
 # maybe you have to make it executable first with `chmod +x dp4.py`
 ```
 
+On Windows systems:
 
 ```bash
-# On Windows systems:
 python3 dp4.py --play
 # or if `python3` does not work try...
-python.exe dp4.py --play
+python3.exe dp4.py --play
 # or
-C:/path/to/python3/python.exe dp4.py --play
+C:/path/to/python3/python3.exe dp4.py --play
 ```
 
-Progress will be auto-saved from time to time or when you quit the game with `CTRL+C`.
+Progress will be auto-saved from time to time or when you quit the game by pressing `CTRL`+`C`.
 
 ---
 
@@ -77,13 +80,10 @@ If you do not add any arguments, the following help text will be displayed:
 ```text
 usage: dp4.py [-h] [-p] [-n NAME] [-d PATH]
 
-An idle game that is played in a terminal window. No input is required once it is running. 
-Auto-saves every 3.0 minutes. Press CTRL+C to save and quit.
-
 optional arguments:
   -h, --help                   show this help message and exit
   -p, --play                   play the game
-  -n NAME, --save-name NAME    name of the save game to create or resume from (default=save1)
+  -n NAME, --save-name NAME    name of the save game to create or resume from (default=game1)
   -d PATH, --save-dir PATH     path to the save data directory (default=/path/to/destinyspath4/game/save)
 ```
 
@@ -94,18 +94,27 @@ optional arguments:
 
 ## Usage Examples
 
-**Get help**. Display the usage help:
+**Display the quick help**:
 
 ```bash
 dp4.py
+```
+
+```bash
 dp4.py --help
+```
+
+```bash
 dp4.py -h
 ```
 
-**Play the game** - Start a new or resume a previous game if you played before using the default save data file name and directory:
+**Play the game** - Starts or resumes a game using the default save data file name and directory:
 
 ```bash
 dp4.py --play
+```
+
+```bash
 dp4.py -p
 ```
 
@@ -113,6 +122,9 @@ dp4.py -p
 
 ```bash
 dp4.py --play --save-name myothergame
+```
+
+```bash
 dp4.py -p -n myothergame
 ```
 
@@ -120,6 +132,9 @@ dp4.py -p -n myothergame
 
 ```bash
 dp4.py --play --save-dir /path/to/mysavedata
+```
+
+```bash
 dp4.py -p -d /path/to/mysavedata
 ```
 
@@ -127,6 +142,9 @@ dp4.py -p -d /path/to/mysavedata
 
 ```bash
 dp4.py --play --save-name myothergame --save-dir /path/to/mysavedata
+```
+
+```bash
 dp4.py -p -n myothergame -d /path/to/mysavedata
 ```
 
@@ -138,7 +156,9 @@ dp4.py -p -n myothergame -d /path/to/mysavedata
 ## Thanks
 
 Some asset text data was contributed by [orochihanma](https://twitch.tv/orochihanma) and [execratus](https://twitch.tv/exe_cratus) in:
-[object_name.dat](./game/asset/object_name.dat), [object_prefix.dat](./game/asset/object_prefix.dat) and [object_suffix.dat](./game/asset/object_suffix.dat)
+- [object_name.dat](./game/asset/object_name.dat)
+- [object_prefix.dat](./game/asset/object_prefix.dat)
+- [object_suffix.dat](./game/asset/object_suffix.dat)
 
 ---
 

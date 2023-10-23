@@ -1,4 +1,3 @@
-import base64
 import json
 import pathlib
 import time
@@ -37,30 +36,31 @@ class DP4_Save:
             return
 
         try:
-            with open(self.file, 'rb') as f:
-                dump: dict[str, any] = json.loads(base64.b64decode(f.read().decode()))
+            with open(self.file, 'r') as f:
+                dump: dict[str, any] = json.loads(f.read())
 
                 for k, v in dump.items():
                     if type(v) == type(getattr(self, k)):
                         setattr(self, k, v)
-
         except Exception as e:
             print('error while loading save data:', e)
-            exit(1)
+            exit(20)
 
 
     def store(self) -> None:
         self.last_saved = time.time()
 
-        dump: dict[str, any] = {}
+        try:
 
-        for k in vars(self):
-            if k == 'file': continue
-            dump[k] = getattr(self, k)
+            with open(self.file, 'w') as f:
+                dump: dict[str, any] = {}
 
-        dump = json.dumps(dump, indent=4).encode()
-        dump = base64.b64encode(dump)
+                for k in vars(self):
+                    if k == 'file': continue
+                    dump[k] = getattr(self, k)
 
-
-        with open(self.file, 'wb') as f:
-            f.write(dump)
+                out: str = json.dumps(dump, indent=4)
+                f.write(out)
+        except Exception as e:
+            print('error while storing save data:', e)
+            exit(21)

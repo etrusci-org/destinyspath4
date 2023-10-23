@@ -26,11 +26,10 @@ class DP4_Core:
         self.String: DP4_String = DP4_String(asset_dir=self.Conf.asset_dir, load_from=self.Conf.string_load_from, string_part_chance=self.Conf.string_part_chance)
         self.CLIParser: argparse.ArgumentParser = argparse.ArgumentParser(
             description=f'''
-                An idle game that is played in a terminal window.
-                No input is required once it is running.
+                An idle-game that is *played* in the terminal. No user input is necessary when it runs. Everything that happens depends on your luck.
                 Auto-saves every {ff(self.Conf.autosave_interval / 60, prec=1)} minutes. Press CTRL+C to save and quit.
             ''',
-            epilog='Made by arT2 (etrusci.org)',
+            epilog='Made by arT2 (etrusci.org). Repository: https://github.com/etrusci-org/destinyspath4',
         )
 
         self.CLIParser.add_argument('-p', '--play',
@@ -82,9 +81,7 @@ class DP4_Core:
         self.Lang: DP4_Lang = DP4_Lang(lang_code=self.Conf.lang)
 
 
-
     # -----------------------------------------------------------------------
-
 
 
     def play(self) -> None:
@@ -92,7 +89,14 @@ class DP4_Core:
             clear_terminal()
             disable_terminal_cursor()
 
+            self.log(f'Initializing game "{self.Conf.save_name}"', sleep=0)
+            self.log(f'file: {self.Save.file}', sleep=0, end='\n\n')
+            spinner(3, type='binary', end='')
+
             self.Save.load()
+
+            self.log(f'Initializing world', sleep=0, end='\n\n')
+            spinner(3, type='binary', end='')
 
             self.init_world_files()
 
@@ -100,6 +104,9 @@ class DP4_Core:
                 self.Save.first_played = time.time()
                 self.Save.region_name = self.String.region_name(self.Save.region_level)
                 self.Save.shell_name = self.String.random_name('entity')
+                self.log(f'Starting new game', sleep=4)
+            else:
+                self.log(f'Resuming game', sleep=4)
 
             self.String.current_shell_name = self.Save.shell_name # set current shell name in string class to avoid having the same name after a restart/rebirth
 
@@ -108,7 +115,7 @@ class DP4_Core:
             exit(0)
         finally:
             self.Save.store()
-            self.log('(progress saved)', start='\n\n', sleep=0)
+            self.log(f'Game saved to {self.Save.file}', start='\n\n', sleep=0)
             enable_terminal_cursor()
 
 
@@ -162,9 +169,7 @@ class DP4_Core:
         if self.Event.group == 'entity': self.sim_entity()
 
 
-
     # -----------------------------------------------------------------------
-
 
 
     def sim_wakeup(self) -> None:
@@ -183,7 +188,7 @@ class DP4_Core:
         self.update_region_level()
 
         if int(self.Save.region_level) != prev_region_level:
-            self.log(self.Lang.sim_walk_enternewregion.format(region_name=self.Save.region_name, region_level=int(self.Save.region_level)), sleep=rffr(self.Conf.sim_walk_enternewregion_duration), with_spinner=True, spinner_type='binary')
+            self.log(self.Lang.sim_walk_enternewregion.format(region_name=self.Save.region_name, region_level=int(self.Save.region_level)), sleep=rffr(self.Conf.sim_walk_enternewregion_duration), with_spinner=True, spinner_type='arrow')
 
 
     def sim_sell(self) -> None:
@@ -249,14 +254,14 @@ class DP4_Core:
 
 
     def sim_rebirth(self) -> None:
-        self.log(self.Lang.sim_rebirth_waiting, sleep=rffr(self.Conf.sim_rebirth_waiting_duration), with_spinner=True, spinner_type='spin')
+        self.log(self.Lang.sim_rebirth_waiting, sleep=rffr(self.Conf.sim_rebirth_waiting_duration), with_spinner=True)
 
         self.Save.shell_name = self.String.random_name('entity')
         self.String.current_shell_name = self.Save.shell_name
 
         self.sim_wakeup()
 
-        self.log(self.Lang.sim_rebirth_calibrating, sleep=rffr(self.Conf.sim_rebirth_calibrate_duration), with_spinner=True, spinner_type='binary')
+        self.log(self.Lang.sim_rebirth_calibrating, sleep=rffr(self.Conf.sim_rebirth_calibrate_duration), with_spinner=True, spinner_type='binary2')
 
 
     def sim_gift(self) -> None:
@@ -369,7 +374,7 @@ class DP4_Core:
 
             self.add_inventory_item(item_name)
 
-            self.log(self.Lang.sim_conversation_getitem.format(item_name=item_name, item_value=ff(self.Save.inventory[item_name]['item_value'])))
+            self.log(self.Lang.sim_conversation_getitem.format(item_name=item_name))
             self.log(self.Lang.sim_conversation_youthankentity.format(entity_name=entity_name))
         else:
             self.log(self.Lang.sim_conversation_entitylostinterest.format(entity_name=entity_name))
@@ -391,7 +396,6 @@ class DP4_Core:
                 stolen_items: list = random.sample(sorted(self.Save.inventory), stolen_items_count)
                 for item_name in stolen_items:
                     item_count = self.Save.inventory[item_name]['count']
-                    stack_value = self.Save.inventory[item_name]['stack_value']
 
                     self.Save.total_items_stolen_by_foes += item_count
 
@@ -431,6 +435,8 @@ class DP4_Core:
 
         self.log(self.Lang.sim_find_loot_checkwagonspace, sleep=rffr(self.Conf.sim_find_loot_wagoncheck_duration), with_spinner=True)
 
+        random.shuffle(found_items)
+
         for item_name in found_items:
             if len(self.Save.inventory.keys()) >= self.Conf.inventory_size and not self.Save.inventory.get(item_name):
                 self.log(self.Lang.sim_find_loot_discarditem.format(item_name=item_name))
@@ -439,9 +445,7 @@ class DP4_Core:
             self.add_inventory_item(item_name)
 
 
-
     # -----------------------------------------------------------------------
-
 
 
     def init_world_files(self):
@@ -452,31 +456,34 @@ class DP4_Core:
 
         if prefix_out_file.is_file() \
         and suffix_out_file.is_file():
-            print('loaded from chacche')
-            self.String.load_from_file('region_prefix', prefix_out_file)
-            self.String.load_from_file('region_suffix', suffix_out_file)
+            with open(prefix_out_file, 'r') as prefix_of, \
+                 open(suffix_out_file, 'r') as suffix_of:
+                prefix_dump = prefix_of.read().split()
+                suffix_dump = suffix_of.read().split()
+
+                self.String.string_data['region_prefix']: list[str] = prefix_dump
+                self.String.string_data['region_suffix']: list[str] = suffix_dump
             return
 
         with open(prefix_dump_file, 'r') as prefix_df, \
             open(suffix_dump_file, 'r') as suffix_df, \
             open(prefix_out_file, 'w') as prefix_of, \
             open(suffix_out_file, 'w') as suffix_of:
+
             prefix_dump = prefix_df.read().split()
             suffix_dump = suffix_df.read().split()
+
+            prefix_dump = list(filter(None, prefix_dump))
+            suffix_dump = list(filter(None, suffix_dump))
 
             random.shuffle(prefix_dump)
             random.shuffle(suffix_dump)
 
-            self.String.string_data['region_prefix']: list = []
-            self.String.string_data['region_suffix']: list = []
+            self.String.string_data['region_prefix']: list[str] = prefix_dump
+            self.String.string_data['region_suffix']: list[str] = suffix_dump
 
-            for line in prefix_dump:
-                prefix_of.write(f'{line}\n')
-                self.String.string_data['region_prefix'].append(line)
-
-            for line in suffix_dump:
-                suffix_of.write(f'{line}\n')
-                self.String.string_data['region_suffix'].append(line)
+            prefix_of.write('\n'.join(prefix_dump))
+            suffix_of.write('\n'.join(suffix_dump))
 
 
     def update_distance_traveled(self, started_walking_on: float) -> None:
@@ -514,9 +521,7 @@ class DP4_Core:
         return item_value
 
 
-
     # -----------------------------------------------------------------------
-
 
 
     def log(self, msg: str = '', start: str = '', end: str = '\n', sleep: float = 2.0, with_spinner=False, spinner_type: str = 'dot') -> None:
@@ -537,7 +542,7 @@ class DP4_Core:
     def print_head(self) -> None:
         w: int = 60
 
-        self.log(f'===[ D e s t i n y \' s   P a t h   4 ]==='.ljust(w, '='), end='\n\n', sleep=0)
+        self.log(f'---=|| D e s t i n y \'s  P a t h  4 ||=-'.ljust(w, '-'), end='\n\n', sleep=0)
 
         self.log(f'{self.Lang.stats_label_shell_name}: {self.Lang.stats_text_shell_name.format(shell_name=self.Save.shell_name)}', sleep=0)
         self.log(f'{self.Lang.stats_label_region}: {self.Lang.stats_text_region.format(region_level=int(self.Save.region_level), region_name=self.Save.region_name)}', sleep=0)
@@ -546,8 +551,7 @@ class DP4_Core:
         self.log(f'{self.Lang.stats_label_wagon}: {self.Lang.stats_text_wagon.format(free_space_count=max(0, self.Conf.inventory_size - len(self.Save.inventory.keys())), inventory_size=self.Conf.inventory_size)}', sleep=0)
 
         if self.Save.total_distance_traveled > 0:
-            self.log(f'           -  t  o  t  a  l  -', start='\n', sleep=0)
-            self.log(f'{self.Lang.stats_label_total_distance_traveled}: {self.Lang.stats_text_total_distance_traveled.format(total_distance_traveled=ff(self.Save.total_distance_traveled, prec=3))}', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_distance_traveled}: {self.Lang.stats_text_total_distance_traveled.format(total_distance_traveled=ff(self.Save.total_distance_traveled, prec=3))}', start='\n', sleep=0)
 
         if self.Save.total_items_looted > 0:
             self.log(f'{self.Lang.stats_label_total_items_looted}: {self.Lang.stats_text_total_items_looted.format(total_items_looted=self.Save.total_items_looted, total_items_stolen_by_foes=self.Save.total_items_stolen_by_foes)}', sleep=0)
@@ -564,4 +568,4 @@ class DP4_Core:
         if self.Save.total_deaths > 0:
             self.log(f'{self.Lang.stats_label_total_deaths}: {self.Lang.stats_text_total_deaths.format(total_deaths=self.Save.total_deaths, total_deaths_by_foes=self.Save.total_deaths_by_foes, total_random_deaths=self.Save.total_random_deaths)}', sleep=0)
 
-        self.log(f'---'.rjust(w, '-'), start='\n', end='\n\n', sleep=0)
+        self.log('-' * w, start='\n', end='\n\n', sleep=0)
