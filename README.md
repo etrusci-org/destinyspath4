@@ -1,10 +1,10 @@
 # Destiny's Path 4
 
-An idle game that is *played* in a terminal window. No input is required once it is running.
+An idle-game that is *played* in the terminal. No user input is necessary when it runs. Everything that happens depends on your luck.
 
-It just exists for relaxation/learning reasons *(same reason i never released part 1-3)*... Enjoy!
+It was created just for fun/learning. Like part 1-3, which I never made public ;-)
 
-![screenshot](./screenshot.png)
+<!-- ![screenshot](./screenshot.png) -->
 
 ---
 
@@ -46,17 +46,17 @@ Open a terminal window and change into the `game/` directory:
 cd path/to/destinyspath4/game/
 ```
 
-Play the game:
+
+On *nix systems:
 
 ```bash
-# On *nix:
 ./dp4.py --play
 # maybe you have to make it executable first with `chmod +x dp4.py`
 ```
 
+On Windows systems:
 
 ```bash
-# On Windows systems:
 python3 dp4.py --play
 # or if `python3` does not work try...
 python3.exe dp4.py --play

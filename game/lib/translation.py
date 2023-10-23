@@ -47,13 +47,13 @@ TRANSLATION['en'] = {
     'sim_wakeup': 'Waking up in a shell named <{shell_name}>',
 
     'sim_walk': 'Walking the path',
-    'sim_walk_enternewregion': 'Entering region {region_name} (level:{region_level})',
+    'sim_walk_enternewregion': 'Entering the {region_name} region (level:{region_level})',
 
     'sim_sell_wagonfull': 'The wagon is full',
     'sim_sell_lookingforvendor': 'Looking for a merchant',
     'sim_sell_foundshop': 'Found the shop of <{vendor_name}>',
     'sim_sell_negvendormod': 'Negotiating trade price modificator',
-    'sim_sell_negvendormodresult': 'Negotiated {vendor_mod}',
+    'sim_sell_negvendormodresult': 'Negotiated x{vendor_mod}',
     'sim_sell_solditem': 'Selling {item_count} [{item_name}] for {stack_value} {currency_name} {per_item_value}',
     'sim_sell_result': 'Earned {total_income} {currency_name} from {item_count} items',
     'sim_sell_leavingshop': 'Leaving the shop',
@@ -62,7 +62,7 @@ TRANSLATION['en'] = {
     'sim_transfer_currency_transfering': 'Transfering some {currency_name} to the cold wallet',
     'sim_transfer_currency_result': 'Secured {transfer_amount} {currency_name}',
 
-    'sim_death': 'Died because `{cause_of_death}´',
+    'sim_death': 'Dying because `{cause_of_death}´',
 
     'sim_rebirth_waiting': 'Waiting to be reborn',
     'sim_rebirth_calibrating': 'Calibrating new reality',
@@ -99,7 +99,7 @@ TRANSLATION['en'] = {
 
     'sim_conversation_inprogress': 'Having a conversation about [{item_name}]',
     'sim_conversation_entityapproves': '<{entity_name}> must now go',
-    'sim_conversation_getitem': 'You received [{item_name}] worth {item_value} as a gift',
+    'sim_conversation_getitem': 'You received [{item_name}] as a gift',
     'sim_conversation_youthankentity': 'You thank <{entity_name}>',
     'sim_conversation_entitylostinterest': '<{entity_name}> got bored and walks away',
     'sim_conversation_end': 'Your paths diverge',

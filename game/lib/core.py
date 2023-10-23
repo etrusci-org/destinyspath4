@@ -26,10 +26,10 @@ class DP4_Core:
         self.String: DP4_String = DP4_String(asset_dir=self.Conf.asset_dir, load_from=self.Conf.string_load_from, string_part_chance=self.Conf.string_part_chance)
         self.CLIParser: argparse.ArgumentParser = argparse.ArgumentParser(
             description=f'''
-                An idle game that is played in a terminal window. No input is required once it is running. See README for details.
+                An idle-game that is *played* in the terminal. No user input is necessary when it runs. Everything that happens depends on your luck.
                 Auto-saves every {ff(self.Conf.autosave_interval / 60, prec=1)} minutes. Press CTRL+C to save and quit.
             ''',
-            epilog='Made by arT2 (etrusci.org). Source: https://github.com/etrusci-org/destinyspath4',
+            epilog='Made by arT2 (etrusci.org). Repository: https://github.com/etrusci-org/destinyspath4',
         )
 
         self.CLIParser.add_argument('-p', '--play',
@@ -104,9 +104,9 @@ class DP4_Core:
                 self.Save.first_played = time.time()
                 self.Save.region_name = self.String.region_name(self.Save.region_level)
                 self.Save.shell_name = self.String.random_name('entity')
-                self.log(f'Starting new game', sleep=5)
+                self.log(f'Starting new game', sleep=4)
             else:
-                self.log(f'Resuming game', sleep=5)
+                self.log(f'Resuming game', sleep=4)
 
             self.String.current_shell_name = self.Save.shell_name # set current shell name in string class to avoid having the same name after a restart/rebirth
 
@@ -374,7 +374,7 @@ class DP4_Core:
 
             self.add_inventory_item(item_name)
 
-            self.log(self.Lang.sim_conversation_getitem.format(item_name=item_name, item_value=ff(self.Save.inventory[item_name]['item_value'])))
+            self.log(self.Lang.sim_conversation_getitem.format(item_name=item_name))
             self.log(self.Lang.sim_conversation_youthankentity.format(entity_name=entity_name))
         else:
             self.log(self.Lang.sim_conversation_entitylostinterest.format(entity_name=entity_name))
@@ -542,7 +542,7 @@ class DP4_Core:
     def print_head(self) -> None:
         w: int = 60
 
-        self.log(f'--~[ D e s t i n y \' s  P a t h  4 ]~---~{{ {self.Conf.save_name} }}~--'.ljust(w, '-'), end='\n\n', sleep=0)
+        self.log(f'---=|| D e s t i n y \'s  P a t h  4 ||=-'.ljust(w, '-'), end='\n\n', sleep=0)
 
         self.log(f'{self.Lang.stats_label_shell_name}: {self.Lang.stats_text_shell_name.format(shell_name=self.Save.shell_name)}', sleep=0)
         self.log(f'{self.Lang.stats_label_region}: {self.Lang.stats_text_region.format(region_level=int(self.Save.region_level), region_name=self.Save.region_name)}', sleep=0)
