@@ -127,11 +127,15 @@ class DP4_Conf:
 
     travel_speed: float = 5.3
 
-    inventory_size: int = 20
+    inventory_size: int = 10
 
     end_of_gameloop_duration: tuple[float, float] = (4.0, 7.0)
 
     sim_wakeup_wakingup_duration: tuple[float, float] = (5.0, 7.0)
+
+    sim_walk_walking_duration: tuple[float, float] = (5.0, 15.0)
+    sim_walk_enternewregion_duration: tuple[float, float] = (10.0, 20.0)
+    sim_walk_startevent_chance: float = 0.2
 
     sim_sell_searchvendor_duration: tuple[float, float] = (7.0, 20.0)
     sim_sell_negvendormod_duration: tuple[float, float] = (7.0, 15.0)
@@ -141,10 +145,6 @@ class DP4_Conf:
     sim_transfer_currency_treshold: float = 1.0
     sim_transfer_currency_transfer_duration: tuple[float, float] = (10.0, 30.0)
     sim_transfer_currency_transfer_amount_mod: float = 0.75
-
-    sim_walk_walking_duration: tuple[float, float] = (5.0, 15.0)
-    sim_walk_enternewregion_duration: tuple[float, float] = (10.0, 20.0)
-    sim_walk_startevent_chance: float = 0.11
 
     sim_death_dying_duration: tuple[float, float] = (15.0, 30.0)
 
@@ -161,13 +161,13 @@ class DP4_Conf:
 
     sim_entity_attitude: list[str] = ['friendly', 'hostile']
     sim_entity_acting_duration: tuple[float, float] = (3.0, 8.0)
-    sim_entity_entityflee_chance_range: tuple[float, float] = (0.0, 0.5)
-    sim_entity_playerflee_chance_range: tuple[float, float] = (0.0, 0.5)
-    sim_entity_conversation_chance_range: tuple[float, float] = (0.0, 0.5)
+    sim_entity_entityflee_chance_range: tuple[float, float] = (0.0, 0.7)
+    sim_entity_playerflee_chance_range: tuple[float, float] = (0.0, 0.7)
+    sim_entity_conversation_chance_range: tuple[float, float] = (0.1, 0.7)
 
     sim_conversation_convo_duration: tuple[float, float] = (10.0, 30.0)
 
-    sim_fight_fighting_duration: tuple[float, float] = (10.0, 20.0)
+    sim_fight_fighting_duration: tuple[float, float] = (7.0, 15.0)
     sim_fight_searchcorpse_duration: tuple[float, float] = (4.0, 7.0)
     sim_fight_hidecorpse_duration: tuple[float, float] = (8.0, 14.0)
     sim_fight_stolenitemsmin_count: int = 0
