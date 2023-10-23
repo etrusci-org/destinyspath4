@@ -89,12 +89,14 @@ class DP4_Core:
             clear_terminal()
             disable_terminal_cursor()
 
-            # self.log(f'Loading')
-            # self.log(f'save-name: {self.Conf.save_name}')
-            # self.log(f'save-dir: {self.Conf.save_dir}')
-            # self.log(f'save-file: {self.Save.file}')
+            self.log(f'Initializing game "{self.Conf.save_name}"', sleep=0)
+            self.log(f'file: {self.Save.file}', sleep=0, end='\n\n')
+            spinner(3, type='binary', end='')
 
             self.Save.load()
+
+            self.log(f'Initializing world', sleep=0, end='\n\n')
+            spinner(3, type='binary', end='')
 
             self.init_world_files()
 
@@ -102,6 +104,9 @@ class DP4_Core:
                 self.Save.first_played = time.time()
                 self.Save.region_name = self.String.region_name(self.Save.region_level)
                 self.Save.shell_name = self.String.random_name('entity')
+                self.log(f'Starting new game', sleep=5)
+            else:
+                self.log(f'Resuming game', sleep=5)
 
             self.String.current_shell_name = self.Save.shell_name # set current shell name in string class to avoid having the same name after a restart/rebirth
 
@@ -110,7 +115,7 @@ class DP4_Core:
             exit(0)
         finally:
             self.Save.store()
-            self.log('(progress saved)', start='\n\n', sleep=0)
+            self.log(f'Game saved to {self.Save.file}', start='\n\n', sleep=0)
             enable_terminal_cursor()
 
 
