@@ -29,39 +29,58 @@ class DP4_String:
             parts: list[str] = []
 
             if type == 'deathcause':
-                parts.append(random.choice(self.string_data['deathcause_text']))
+                parts = self.deathcause_name_parts()
 
             if type == 'container':
-                parts.append(random.choice(self.string_data['object_prefix']) if random.random() < self.string_part_chance['container_prefix'] else None)
-                parts.append(random.choice(self.string_data['container_name']))
-                parts.append(random.choice(self.string_data['object_suffix']) if random.random() < self.string_part_chance['container_suffix'] else None)
+                parts = self.container_name_parts()
 
             if type == 'object':
-                parts.append(random.choice(self.string_data['object_prefix']) if random.random() < self.string_part_chance['object_prefix'] else None)
-                parts.append(random.choice(self.string_data['object_name']))
-                parts.append(random.choice(self.string_data['object_suffix']) if random.random() < self.string_part_chance['object_suffix'] else None)
+                parts = self.object_name_parts()
 
             if type == 'entity':
-                parts.append(random.choice(self.string_data['entity_prefix']) if random.random() < self.string_part_chance['entity_prefix'] else None)
-                parts.append(random.choice(self.string_data['entity_name']))
-                parts.append(random.choice(self.string_data['entity_suffix']) if random.random() < self.string_part_chance['entity_suffix'] else None)
+                parts = self.entity_name_parts()
 
             parts = list(filter(None, parts))
 
-            name: str = ' '.join(parts)
+            name: str = ' '.join(parts).lower()
 
-            if type == 'entity' and name.lower() == self.current_shell_name.lower():
+            if type == 'entity' and name == self.current_shell_name.lower():
                 continue
 
-            if type == 'deathcause':
-                name = name.lower()
-
-            if type == 'container' \
-            or type == 'object' \
-            or type == 'entity':
+            if type != 'deathcause':
                 name = name.title()
 
             return name
+
+
+    def deathcause_name_parts(self) -> str:
+        return [
+            random.choice(self.string_data['deathcause_text']),
+        ]
+
+
+    def container_name_parts(self) -> str:
+        return [
+            random.choice(self.string_data['object_prefix']) if random.random() < self.string_part_chance['container_prefix'] else None,
+            random.choice(self.string_data['container_name']),
+            random.choice(self.string_data['object_suffix']) if random.random() < self.string_part_chance['container_suffix'] else None,
+        ]
+
+
+    def object_name_parts(self) -> str:
+        return [
+            random.choice(self.string_data['object_prefix']) if random.random() < self.string_part_chance['object_prefix'] else None,
+            random.choice(self.string_data['object_name']),
+            random.choice(self.string_data['object_suffix']) if random.random() < self.string_part_chance['object_suffix'] else None,
+        ]
+
+
+    def entity_name_parts(self) -> str:
+        return [
+            random.choice(self.string_data['entity_prefix']) if random.random() < self.string_part_chance['entity_prefix'] else None,
+            random.choice(self.string_data['entity_name']),
+            random.choice(self.string_data['entity_suffix']) if random.random() < self.string_part_chance['entity_suffix'] else None,
+        ]
 
 
     def region_name(self, region_level: float = 0.0) -> str:
