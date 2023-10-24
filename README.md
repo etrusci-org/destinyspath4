@@ -14,7 +14,7 @@ It was created just for fun/learning. Like part 1-3, which I never made public ;
 ## Dependecies
 
 - [Python](https://www.python.org/downloads/) version `>= 3.9.2`
-- A terminal to run it. The default on any platform should do the trick.
+- A terminal to run it. The default on any platform should do the trick - e.g. xterm, terminator, powershell, cmd, etc.
 
 **Note**: DP4 was written and tested on Python  `3.9.2`. **Later Python versions could introduce breaking changes**, but usually you're good with installing the latest one. You can have multiple Python versions installed at the same time.
 

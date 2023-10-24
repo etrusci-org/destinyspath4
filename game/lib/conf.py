@@ -36,7 +36,7 @@ class DP4_Conf:
 
     # auto-save interval in seconds
     # the game will always try to save on exit
-    autosave_interval: int = 180
+    autosave_interval: int = 300
 
     # chances for event groups to be triggered (after DP4_Core.sim_walk)
     # order from lowest to higest chance
