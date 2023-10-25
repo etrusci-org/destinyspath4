@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import pathlib
 import random
 import sys
@@ -27,7 +28,7 @@ class DP4_Core:
         self.CLIParser: argparse.ArgumentParser = argparse.ArgumentParser(
             description=f'''
                 An idle-game that is *played* in the terminal. No user input is necessary when it runs. Everything that happens depends on your luck.
-                Auto-saves every {ff(self.Conf.autosave_interval / 60, prec=1)} minutes. Press CTRL+C to save and quit.
+                Progress will be auto-saved from time to time or when you quit the game by pressing CTRL+C.
             ''',
             epilog='Made by arT2 (etrusci.org). Repository: https://github.com/etrusci-org/destinyspath4',
         )
@@ -35,6 +36,11 @@ class DP4_Core:
         self.CLIParser.add_argument('-p', '--play',
             action='store_true',
             help='play the game',
+        )
+
+        self.CLIParser.add_argument('-s', '--list-saves',
+            action='store_true',
+            help='list save data info from the current save data directory',
         )
 
         self.CLIParser.add_argument('-n', '--save-name',
@@ -51,6 +57,14 @@ class DP4_Core:
             default=self.Conf.save_dir,
             required=False,
             help=f'path to the save data directory (default={self.Conf.save_dir})',
+        )
+
+        self.CLIParser.add_argument('-i', '--autosave-interval',
+            metavar='SECONDS',
+            type=int,
+            default=self.Conf.autosave_interval,
+            required=False,
+            help=f'time in seconds on which the progress should automatically be saved to file (default={self.Conf.autosave_interval})',
         )
 
         # lang option disabled until there is a second translation
@@ -74,6 +88,7 @@ class DP4_Core:
         self.Conf.save_dir = save_dir
         self.Conf.save_name = self.cliargs.save_name
         self.Conf.save_file = self.Conf.save_dir.joinpath(f'{self.Conf.save_name}.dp4')
+        self.Conf.autosave_interval = self.cliargs.autosave_interval
 
         self.Save = DP4_Save(file=self.Conf.save_file)
 
@@ -248,7 +263,7 @@ class DP4_Core:
 
         deathcause = self.String.random_name('deathcause')
 
-        self.log(self.Lang.sim_death.format(cause_of_death=deathcause), sleep=rffr(self.Conf.sim_death_dying_duration), with_spinner=True)
+        self.log(self.Lang.sim_death.format(cause_of_death=deathcause), sleep=rffr(self.Conf.sim_death_dying_duration), with_spinner=True, spinner_type='heartbeat')
 
         self.sim_rebirth()
 
@@ -519,6 +534,28 @@ class DP4_Core:
             item_value += self.Conf.item_name_char_value.get(char, self.Conf.item_name_unknown_char_value)
 
         return item_value
+
+
+    # -----------------------------------------------------------------------
+
+
+    def list_saves(self) -> None:
+        dump = list(self.Conf.save_dir.glob('*.dp4'))
+
+        if len(dump) == 0:
+            print(f'No save data files found, try --play first')
+            return
+
+        print(f'Listing save data files from: {self.Conf.save_dir}')
+        print('')
+        print('Resume any of these games with --save-name NAME')
+        print(f'e.g.: dp4.py --play --save-name {dump[0].stem}')
+
+        for file in sorted(dump):
+            print('')
+            print(f'    name: {file.stem}')
+            print(f'    file: {file}')
+            print(f'modified: {datetime.datetime.fromtimestamp(file.lstat().st_mtime)}')
 
 
     # -----------------------------------------------------------------------

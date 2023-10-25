@@ -10,5 +10,7 @@ if __name__ == '__main__':
 
     if DP4.cliargs.play:
         DP4.play()
+    elif DP4.cliargs.list_saves:
+        DP4.list_saves()
     else:
         DP4.CLIParser.print_help()
