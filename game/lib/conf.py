@@ -44,9 +44,9 @@ class DP4_Conf:
     # see DP4_Event.new
     # valid range: 0.0 - 1.0
     event_group_chance: dict[str, float] = {
-        'death': 0.03,
-        'gift': 0.04,
-        'hacker': 0.05,
+        'death': 0.04,
+        'gift': 0.05,
+        'hacker': 0.06,
         'container': 0.21,
         'entity': 1.0,
     }
@@ -135,7 +135,7 @@ class DP4_Conf:
 
     sim_walk_walking_duration: tuple[float, float] = (5.0, 15.0)
     sim_walk_enternewregion_duration: tuple[float, float] = (10.0, 20.0)
-    sim_walk_startevent_chance: float = 0.2
+    sim_walk_startevent_chance: float = 0.24
 
     sim_sell_searchvendor_duration: tuple[float, float] = (7.0, 20.0)
     sim_sell_negvendormod_duration: tuple[float, float] = (7.0, 15.0)
