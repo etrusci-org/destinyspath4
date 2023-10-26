@@ -44,7 +44,7 @@ class DP4_Core:
         )
 
         self.CLIParser.add_argument('-n', '--save-name',
-            metavar='NAME',
+            metavar='<NAME>',
             type=str,
             default=self.Conf.save_name,
             required=False,
@@ -52,7 +52,7 @@ class DP4_Core:
         )
 
         self.CLIParser.add_argument('-d', '--save-dir',
-            metavar='PATH',
+            metavar='<PATH>',
             type=str,
             default=self.Conf.save_dir,
             required=False,
@@ -60,7 +60,7 @@ class DP4_Core:
         )
 
         self.CLIParser.add_argument('-i', '--autosave-interval',
-            metavar='SECONDS',
+            metavar='<SECONDS>',
             type=int,
             default=self.Conf.autosave_interval,
             required=False,
