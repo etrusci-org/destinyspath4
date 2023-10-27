@@ -1,5 +1,7 @@
 import argparse
+import base64
 import datetime
+import json
 import pathlib
 import random
 import sys
@@ -81,7 +83,7 @@ class DP4_Core:
 
         save_dir: pathlib.Path = pathlib.Path(self.cliargs.save_dir).resolve()
         if not save_dir.exists() or not save_dir.is_dir():
-            print(f'--save-dir does not exist or is not a directory: {save_dir}')
+            self.log(f'--save-dir does not exist or is not a directory: {save_dir}', sleep=0)
             exit(1)
 
         # all peaches and cream if we reach this line
@@ -104,14 +106,14 @@ class DP4_Core:
             clear_terminal()
             disable_terminal_cursor()
 
-            self.log(f'Initializing game "{self.Conf.save_name}"', sleep=0)
-            self.log(f'file: {self.Save.file}', sleep=0, end='\n\n')
-            spinner(3, type='binary', end='')
+            self.log(f'Initializing save data "{self.Conf.save_name}"', sleep=0)
+            self.log(f'file: {self.Save.file}', sleep=0)
+            spinner(3, type='binary', start='\n', end='')
 
             self.Save.load()
 
-            self.log(f'Initializing world', sleep=0, end='\n\n')
-            spinner(3, type='binary', end='')
+            self.log(f'Initializing world', sleep=0)
+            spinner(3, type='binary', start='\n', end='')
 
             self.init_world_files()
 
@@ -119,9 +121,11 @@ class DP4_Core:
                 self.Save.first_played = time.time()
                 self.Save.region_name = self.String.region_name(self.Save.region_level)
                 self.Save.shell_name = self.String.random_name('entity')
-                self.log(f'Starting new game', sleep=4)
+                self.log(f'Starting new game', sleep=0)
             else:
-                self.log(f'Resuming game', sleep=4)
+                self.log(f'Resuming game', sleep=0)
+
+            spinner(4, type='binary', start='\n')
 
             self.String.current_shell_name = self.Save.shell_name # set current shell name in string class to avoid having the same name after a restart/rebirth
 
@@ -135,7 +139,8 @@ class DP4_Core:
 
 
     def game_loop(self) -> None:
-        is_first_iter = True
+        is_first_iter: bool = True
+        self.game_loop_iter_count: int = 0
 
         while True:
             clear_terminal()
@@ -145,12 +150,14 @@ class DP4_Core:
 
             self.simulate_event(is_first_iter)
 
+            spinner(rffr(self.Conf.end_of_gameloop_duration), type='binary', start='\n', end='')
+
             if not is_first_iter and time.time() - self.Save.last_saved > self.Conf.autosave_interval:
+                self.log(':saving progress:')
                 self.Save.store()
 
             is_first_iter = False
-
-            spinner(rffr(self.Conf.end_of_gameloop_duration), type='binary', start='\n')
+            self.game_loop_iter_count += 1
 
 
     def simulate_event(self, is_first_iter: bool) -> None:
@@ -404,7 +411,7 @@ class DP4_Core:
             self.Save.total_deaths += 1
             self.Save.total_deaths_by_foes += 1
 
-            self.log(self.Lang.sim_fight_yougotkilled.format(entity_name=entity_name))
+            self.log(self.Lang.sim_fight_yougotkilled.format(entity_name=entity_name), spinner_type='heartbeat')
 
             if len(self.Save.inventory.keys()) > 0:
                 stolen_items_count: int = random.randint(self.Conf.sim_fight_stolenitemsmin_count, max(1, int(len(self.Save.inventory.keys()) * self.Conf.sim_fight_stolenitemsmax_mod)))
@@ -543,19 +550,24 @@ class DP4_Core:
         dump = list(self.Conf.save_dir.glob('*.dp4'))
 
         if len(dump) == 0:
-            print(f'No save data files found, try --play first')
+            self.log(f'No save data files found in: {self.Conf.save_dir}', sleep=0)
+            self.log(f'Try --play first', sleep=0)
             return
 
-        print(f'Listing save data files from: {self.Conf.save_dir}')
-        print('')
-        print('Resume any of these games with --save-name NAME')
-        print(f'e.g.: dp4.py --play --save-name {dump[0].stem}')
+        self.log(f'Listing save data files from: {self.Conf.save_dir}', sleep=2, with_spinner=True)
+        self.log('', sleep=0)
+        self.log('Resume any of these games with --save-name <NAME>', sleep=0)
+        self.log(f'e.g.: dp4.py --play --save-name {dump[0].stem}', sleep=0)
 
         for file in sorted(dump):
-            print('')
-            print(f'    name: {file.stem}')
-            print(f'    file: {file}')
-            print(f'modified: {datetime.datetime.fromtimestamp(file.lstat().st_mtime)}')
+            with open(file, 'r') as f:
+                dump: str = f.read()
+                data: dict[str, any] = json.loads(base64.b64decode(dump).decode())
+                self.log('', sleep=0)
+                self.log(f'        name: {file.stem}', sleep=0)
+                self.log(f'        file: {file}', sleep=0)
+                self.log(f'first played: {datetime.datetime.fromtimestamp(int(data["first_played"])) if data["first_played"] > 0 else "never"}', sleep=0)
+                self.log(f'  last saved: {datetime.datetime.fromtimestamp(int(data["last_saved"]))}', sleep=0)
 
 
     # -----------------------------------------------------------------------
@@ -579,7 +591,7 @@ class DP4_Core:
     def print_head(self) -> None:
         w: int = 60
 
-        self.log(f'---=|| D e s t i n y \'s  P a t h  4 ||=-'.ljust(w, '-'), end='\n\n', sleep=0)
+        self.log(f'---=|| D e s t i n y \'s  P a t h  4 ||=---'.ljust(w, '-'), end='\n\n', sleep=0)
 
         self.log(f'{self.Lang.stats_label_shell_name}: {self.Lang.stats_text_shell_name.format(shell_name=self.Save.shell_name)}', sleep=0)
         self.log(f'{self.Lang.stats_label_region}: {self.Lang.stats_text_region.format(region_level=int(self.Save.region_level), region_name=self.Save.region_name)}', sleep=0)
@@ -605,4 +617,4 @@ class DP4_Core:
         if self.Save.total_deaths > 0:
             self.log(f'{self.Lang.stats_label_total_deaths}: {self.Lang.stats_text_total_deaths.format(total_deaths=self.Save.total_deaths, total_deaths_by_foes=self.Save.total_deaths_by_foes, total_random_deaths=self.Save.total_random_deaths)}', sleep=0)
 
-        self.log('-' * w, start='\n', end='\n\n', sleep=0)
+        self.log(f'<i{self.game_loop_iter_count}>---'.ljust(w, '-'), start='\n', end='\n\n', sleep=0)
