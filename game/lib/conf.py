@@ -46,7 +46,7 @@ class DP4_Conf:
     event_group_chance: dict[str, float] = {
         'death': 0.04,
         'gift': 0.05,
-        'hacker': 0.06,
+        'hacker': 0.07,
         'container': 0.21,
         'entity': 1.0,
     }
@@ -127,7 +127,7 @@ class DP4_Conf:
 
     travel_speed: float = 5.3
 
-    inventory_size: int = 10
+    inventory_size: int = 15
 
     end_of_gameloop_duration: tuple[float, float] = (4.0, 7.0)
 
@@ -135,14 +135,14 @@ class DP4_Conf:
 
     sim_walk_walking_duration: tuple[float, float] = (5.0, 15.0)
     sim_walk_enternewregion_duration: tuple[float, float] = (10.0, 20.0)
-    sim_walk_startevent_chance: float = 0.24
+    sim_walk_startevent_chance: float = 0.27
 
     sim_sell_searchvendor_duration: tuple[float, float] = (7.0, 20.0)
     sim_sell_negvendormod_duration: tuple[float, float] = (7.0, 15.0)
     sim_sell_vendormod_range: tuple[float, float] = (0.5, 1.25)
     sim_sell_leavevendor_duration: tuple[float, float] = (2.0, 5.0)
 
-    sim_transfer_currency_treshold: float = 1.0
+    sim_transfer_currency_treshold: float = 2.0
     sim_transfer_currency_transfer_duration: tuple[float, float] = (10.0, 30.0)
     sim_transfer_currency_transfer_amount_mod: float = 0.75
 
@@ -174,4 +174,4 @@ class DP4_Conf:
     sim_fight_stolenitemsmax_mod: float = 0.3
 
     sim_find_loot_count: tuple[int, int] = (0, 5)
-    sim_find_loot_wagoncheck_duration: tuple[float, float] = (3.0, 7.0)
+    sim_find_loot_wagoncheck_duration: tuple[float, float] = (2.0, 5.0)
