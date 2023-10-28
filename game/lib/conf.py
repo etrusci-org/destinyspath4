@@ -22,6 +22,15 @@ class DP4_Conf:
     # is set in DP4_Core.__init__
     save_file: pathlib.Path
 
+    # log file path
+    # is set in DP4_Core.__init__
+    log_file: pathlib.Path
+
+    # turn logging to file on/off
+    # can be overriden with cliargs
+    log_to_file: bool = False
+
+
     # the default language code of the default DP4_Lang translation
     # see DP4_Lang.__init__
     # see translation.py

@@ -6,6 +6,7 @@ import pathlib
 import random
 import sys
 import time
+import logging
 
 from .conf import DP4_Conf
 from .event import DP4_Event
@@ -69,6 +70,11 @@ class DP4_Core:
             help=f'time in seconds on which the progress should automatically be saved to file (default={self.Conf.autosave_interval})',
         )
 
+        self.CLIParser.add_argument('-f', '--log-to-file',
+            action='store_true',
+            help=f'write progress lines to log file (logfile={self.Conf.save_dir.joinpath(f"{self.Conf.save_name}.(dailydate).log")}',
+        )
+
         # lang option disabled until there is a second translation
         # self.CLIParser.add_argument('-t', '--translation',
         #     metavar='LANGCODE',
@@ -83,7 +89,7 @@ class DP4_Core:
 
         save_dir: pathlib.Path = pathlib.Path(self.cliargs.save_dir).resolve()
         if not save_dir.exists() or not save_dir.is_dir():
-            self.log(f'--save-dir does not exist or is not a directory: {save_dir}', sleep=0)
+            self.log(f'--save-dir does not exist or is not a directory: {save_dir}', sleep=0, to_file=False)
             exit(1)
 
         # all peaches and cream if we reach this line
@@ -97,6 +103,18 @@ class DP4_Core:
         # self.Conf.lang = self.cliargs.translation
         self.Lang: DP4_Lang = DP4_Lang(lang_code=self.Conf.lang)
 
+        self.Conf.log_to_file = self.cliargs.log_to_file
+        self.Conf.log_file = self.Conf.save_dir.joinpath(f'{self.Conf.save_name}.{datetime.date.today()}.log')
+        self.prev_log_msg: str = ''
+
+        if self.Conf.log_to_file:
+            logging.basicConfig(
+                filename=self.Conf.log_file,
+                level=logging.DEBUG,
+                format='%(asctime)s | %(message)s',
+                datefmt='%Y-%m-%d %H:%M:%S',
+            )
+
 
     # -----------------------------------------------------------------------
 
@@ -106,13 +124,13 @@ class DP4_Core:
             clear_terminal()
             disable_terminal_cursor()
 
-            self.log(f'Initializing save data "{self.Conf.save_name}"', sleep=0)
-            self.log(f'file: {self.Save.file}', sleep=0)
+            self.log(f'Initializing save data "{self.Conf.save_name}"', sleep=0, to_file=False)
+            self.log(f'file: {self.Save.file}', sleep=0, to_file=False)
             spinner(3, type='binary', start='\n', end='')
 
             self.Save.load()
 
-            self.log(f'Initializing world', sleep=0)
+            self.log(f'Initializing world', sleep=0, to_file=False)
             spinner(3, type='binary', start='\n', end='')
 
             self.init_world_files()
@@ -121,9 +139,9 @@ class DP4_Core:
                 self.Save.first_played = time.time()
                 self.Save.region_name = self.String.region_name(self.Save.region_level)
                 self.Save.shell_name = self.String.random_name('entity')
-                self.log(f'Starting new game', sleep=0)
+                self.log('Starting new game', sleep=0)
             else:
-                self.log(f'Resuming game', sleep=0)
+                self.log('Resuming game', sleep=0)
 
             spinner(4, type='binary', start='\n')
 
@@ -134,7 +152,8 @@ class DP4_Core:
             exit(0)
         finally:
             self.Save.store()
-            self.log(f'Game saved to {self.Save.file}', start='\n\n', sleep=0)
+            self.log('Quitting game', start='\n\n', sleep=0)
+            self.log(f'Progress saved to {self.Save.file}', sleep=0, to_file=False)
             enable_terminal_cursor()
 
 
@@ -153,7 +172,6 @@ class DP4_Core:
             spinner(rffr(self.Conf.end_of_gameloop_duration), type='binary', start='\n', end='')
 
             if not is_first_iter and time.time() - self.Save.last_saved > self.Conf.autosave_interval:
-                self.log(':saving progress:')
                 self.Save.store()
 
             is_first_iter = False
@@ -550,36 +568,42 @@ class DP4_Core:
         dump = list(self.Conf.save_dir.glob('*.dp4'))
 
         if len(dump) == 0:
-            self.log(f'No save data files found in: {self.Conf.save_dir}', sleep=0)
-            self.log(f'Try --play first', sleep=0)
+            self.log(f'No save data files found in: {self.Conf.save_dir}', sleep=0, to_file=False)
+            self.log(f'Try --play first', sleep=0, to_file=False)
             return
 
-        self.log(f'Listing save data files from: {self.Conf.save_dir}', sleep=2, with_spinner=True)
-        self.log('', sleep=0)
-        self.log('Resume any of these games with --save-name <NAME>', sleep=0)
-        self.log(f'e.g.: dp4.py --play --save-name {dump[0].stem}', sleep=0)
+        self.log(f'Listing save data files from: {self.Conf.save_dir}', sleep=2, with_spinner=True, to_file=False)
+        self.log('', sleep=0, to_file=False)
+        self.log('Resume any of these games with --save-name <NAME>', sleep=0, to_file=False)
+        self.log(f'e.g.: dp4.py --play --save-name {dump[0].stem}', sleep=0, to_file=False)
 
         for file in sorted(dump):
             with open(file, 'r') as f:
                 dump: str = f.read()
                 data: dict[str, any] = json.loads(base64.b64decode(dump).decode())
-                self.log('', sleep=0)
-                self.log(f'        name: {file.stem}', sleep=0)
-                self.log(f'        file: {file}', sleep=0)
-                self.log(f'first played: {datetime.datetime.fromtimestamp(int(data["first_played"])) if data["first_played"] > 0 else "never"}', sleep=0)
-                self.log(f'  last saved: {datetime.datetime.fromtimestamp(int(data["last_saved"]))}', sleep=0)
+                self.log('', sleep=0, to_file=False)
+                self.log(f'        name: {file.stem}', sleep=0, to_file=False)
+                self.log(f'        file: {file}', sleep=0, to_file=False)
+                self.log(f'first played: {datetime.datetime.fromtimestamp(int(data["first_played"])) if data["first_played"] > 0 else "never"}', sleep=0, to_file=False)
+                self.log(f'  last saved: {datetime.datetime.fromtimestamp(int(data["last_saved"]))}', sleep=0, to_file=False)
 
 
     # -----------------------------------------------------------------------
 
 
-    def log(self, msg: str = '', start: str = '', end: str = '\n', sleep: float = 2.0, with_spinner=False, spinner_type: str = 'dot') -> None:
+    def log(self, msg: str = '', start: str = '', end: str = '\n', sleep: float = 2.0, with_spinner=False, spinner_type: str = 'dot', to_file=True) -> None:
         orig_end = end
         if with_spinner:
             end = ' '
 
         sys.stdout.write(f'{start}{msg}{end}')
         sys.stdout.flush()
+
+        if self.Conf.log_to_file \
+        and to_file \
+        and msg != self.prev_log_msg:
+            logging.info(msg)
+            self.prev_log_msg = msg
 
         if sleep > 0:
             if not with_spinner:
@@ -591,30 +615,30 @@ class DP4_Core:
     def print_head(self) -> None:
         w: int = 60
 
-        self.log(f'---=|| D e s t i n y \'s  P a t h  4 ||=---'.ljust(w, '-'), end='\n\n', sleep=0)
+        self.log(f'---=|| D e s t i n y \'s  P a t h  4 ||=---'.ljust(w, '-'), end='\n\n', sleep=0, to_file=False)
 
-        self.log(f'{self.Lang.stats_label_shell_name}: {self.Lang.stats_text_shell_name.format(shell_name=self.Save.shell_name)}', sleep=0)
-        self.log(f'{self.Lang.stats_label_region}: {self.Lang.stats_text_region.format(region_level=int(self.Save.region_level), region_name=self.Save.region_name)}', sleep=0)
-        self.log(f'{self.Lang.stats_label_hot_wallet}: {self.Lang.stats_text_wallet.format(currency_amount=ff(self.Save.hot_wallet), currency_name=self.Conf.currency_name)}', sleep=0)
-        self.log(f'{self.Lang.stats_label_cold_wallet}: {self.Lang.stats_text_wallet.format(currency_amount=ff(self.Save.cold_wallet), currency_name=self.Conf.currency_name)}', sleep=0)
-        self.log(f'{self.Lang.stats_label_wagon}: {self.Lang.stats_text_wagon.format(free_space_count=max(0, self.Conf.inventory_size - len(self.Save.inventory.keys())), inventory_size=self.Conf.inventory_size)}', sleep=0)
+        self.log(f'{self.Lang.stats_label_shell_name}: {self.Lang.stats_text_shell_name.format(shell_name=self.Save.shell_name)}', sleep=0, to_file=False)
+        self.log(f'{self.Lang.stats_label_region}: {self.Lang.stats_text_region.format(region_level=int(self.Save.region_level), region_name=self.Save.region_name)}', sleep=0, to_file=False)
+        self.log(f'{self.Lang.stats_label_hot_wallet}: {self.Lang.stats_text_wallet.format(currency_amount=ff(self.Save.hot_wallet), currency_name=self.Conf.currency_name)}', sleep=0, to_file=False)
+        self.log(f'{self.Lang.stats_label_cold_wallet}: {self.Lang.stats_text_wallet.format(currency_amount=ff(self.Save.cold_wallet), currency_name=self.Conf.currency_name)}', sleep=0, to_file=False)
+        self.log(f'{self.Lang.stats_label_wagon}: {self.Lang.stats_text_wagon.format(free_space_count=max(0, self.Conf.inventory_size - len(self.Save.inventory.keys())), inventory_size=self.Conf.inventory_size)}', sleep=0, to_file=False)
 
         if self.Save.total_distance_traveled > 0:
-            self.log(f'{self.Lang.stats_label_total_distance_traveled}: {self.Lang.stats_text_total_distance_traveled.format(total_distance_traveled=ff(self.Save.total_distance_traveled, prec=3))}', start='\n', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_distance_traveled}: {self.Lang.stats_text_total_distance_traveled.format(total_distance_traveled=ff(self.Save.total_distance_traveled, prec=3))}', start='\n', sleep=0, to_file=False)
 
         if self.Save.total_items_looted > 0:
-            self.log(f'{self.Lang.stats_label_total_items_looted}: {self.Lang.stats_text_total_items_looted.format(total_items_looted=self.Save.total_items_looted, total_items_stolen_by_foes=self.Save.total_items_stolen_by_foes)}', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_items_looted}: {self.Lang.stats_text_total_items_looted.format(total_items_looted=self.Save.total_items_looted, total_items_stolen_by_foes=self.Save.total_items_stolen_by_foes)}', sleep=0, to_file=False)
 
         if self.Save.total_items_sold > 0:
-            self.log(f'{self.Lang.stats_label_total_items_sold}: {self.Lang.stats_text_total_items_sold.format(total_items_sold=self.Save.total_items_sold)}', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_items_sold}: {self.Lang.stats_text_total_items_sold.format(total_items_sold=self.Save.total_items_sold)}', sleep=0, to_file=False)
 
         if self.Save.total_trade_income > 0:
-            self.log(f'{self.Lang.stats_label_total_trade_income}: {self.Lang.stats_text_total_trade_income.format(total_trade_income=ff(self.Save.total_trade_income), currency_name=self.Conf.currency_name, total_currency_stolen_by_hackers=ff(self.Save.total_currency_stolen_by_hackers))}', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_trade_income}: {self.Lang.stats_text_total_trade_income.format(total_trade_income=ff(self.Save.total_trade_income), currency_name=self.Conf.currency_name, total_currency_stolen_by_hackers=ff(self.Save.total_currency_stolen_by_hackers))}', sleep=0, to_file=False)
 
         if self.Save.total_kills > 0:
-            self.log(f'{self.Lang.stats_label_total_kills}: {self.Lang.stats_text_total_kills.format(total_kills=self.Save.total_kills)}', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_kills}: {self.Lang.stats_text_total_kills.format(total_kills=self.Save.total_kills)}', sleep=0, to_file=False)
 
         if self.Save.total_deaths > 0:
-            self.log(f'{self.Lang.stats_label_total_deaths}: {self.Lang.stats_text_total_deaths.format(total_deaths=self.Save.total_deaths, total_deaths_by_foes=self.Save.total_deaths_by_foes, total_random_deaths=self.Save.total_random_deaths)}', sleep=0)
+            self.log(f'{self.Lang.stats_label_total_deaths}: {self.Lang.stats_text_total_deaths.format(total_deaths=self.Save.total_deaths, total_deaths_by_foes=self.Save.total_deaths_by_foes, total_random_deaths=self.Save.total_random_deaths)}', sleep=0, to_file=False)
 
-        self.log(f'<i{self.game_loop_iter_count}>---'.ljust(w, '-'), start='\n', end='\n\n', sleep=0)
+        self.log(f'<i{self.game_loop_iter_count}>---'.ljust(w, '-'), start='\n', end='\n\n', sleep=0, to_file=False)
