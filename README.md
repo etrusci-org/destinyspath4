@@ -79,6 +79,9 @@ Path to the save data directory. Default=`/path/to/destinyspath4/game/save`
 `-i <SECONDS>`, `--autosave-interval <SECONDS>`  
 Time in seconds on which the progress should automatically be saved to file. Default=`300`
 
+`-f`, `--log-to-file`  
+Write progress lines to log file. The files will be stored inside the save data directory and are rotated daily.
+
 ---
 
 ## Examples
@@ -117,8 +120,6 @@ dp4.py --list-saves
 dp4.py -s
 ```
 
-
-
 **Start or resume a game with another name** - The save data file will be named **myothergame**:
 
 ```bash
@@ -149,14 +150,24 @@ dp4.py --play --autosave-interval 180
 dp4.py -p -i 180
 ```
 
-**Arguments can be combined**:
+**Write progress lines to log file**:
 
 ```bash
-dp4.py --play --save-name myothergame --save-dir /path/to/mysavedata --autosave-interval 180
+dp4.py --play --log-to-file
 ```
 
 ```bash
-dp4.py -p -n myothergame -d /path/to/mysavedata -i 180
+dp4.py -p -f
+```
+
+**Arguments can be combined**:
+
+```bash
+dp4.py --play --save-name myothergame --save-dir /path/to/mysavedata --autosave-interval 180 --log-to-file
+```
+
+```bash
+dp4.py -p -n myothergame -d /path/to/mysavedata -i 180 -f
 ```
 
 ```bash
