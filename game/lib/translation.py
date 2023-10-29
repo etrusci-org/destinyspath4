@@ -127,7 +127,7 @@ TRANSLATION['en'] = {
 
 # xy - your language example
 # will inherit everything from 'en'
-# to enable the translation, add 'de' to DP4_conf.lang_list
+# to enable the translation, add 'xy' to DP4_conf.lang_list
 # TRANSLATION['xy'] = TRANSLATION['en'] | {
 #     'sim_wakeup': 'hello i am {shell_name}',
 #     'sim_walk': 'i walk',

@@ -1,16 +1,16 @@
+import base64
 import json
 import pathlib
+import shutil
 import time
 
 
 
 
 class DP4_Save:
-    file: pathlib.Path
-
-
     def __init__(self, file: pathlib.Path) -> None:
-        self.file = file
+        self.file: pathlib.Path = file
+        self.data_version: int = 1
         self.first_played: float = 0.0
         self.last_saved: float = 0.0
         self.shell_name: str = ''
@@ -37,9 +37,17 @@ class DP4_Save:
 
         try:
             with open(self.file, 'r') as f:
-                dump: dict[str, any] = json.loads(f.read())
+                dump: str = f.read()
+                data: dict[str, any] = json.loads(base64.b64decode(dump).decode())
 
-                for k, v in dump.items():
+                if data['data_version'] != self.data_version:
+                    current_files = self.file.parent.glob(f'{self.file.stem}.*')
+                    for src in current_files:
+                        dst = self.file.parent.joinpath(f'backup.{int(time.time())}.{src.name}')
+                        shutil.move(src, dst)
+                    return
+
+                for k, v in data.items():
                     if type(v) == type(getattr(self, k)):
                         setattr(self, k, v)
         except Exception as e:
@@ -51,15 +59,13 @@ class DP4_Save:
         self.last_saved = time.time()
 
         try:
-
-            with open(self.file, 'w') as f:
+            with open(self.file, 'wb') as f:
                 dump: dict[str, any] = {}
-
                 for k in vars(self):
                     if k == 'file': continue
                     dump[k] = getattr(self, k)
 
-                out: str = json.dumps(dump, indent=4)
+                out: bytes = base64.b64encode(json.dumps(dump).encode())
                 f.write(out)
         except Exception as e:
             print('error while storing save data:', e)
