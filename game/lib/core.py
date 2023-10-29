@@ -31,7 +31,7 @@ class DP4_Core:
         self.CLIParser: argparse.ArgumentParser = argparse.ArgumentParser(
             description=f'''
                 An idle-game that is *played* in the terminal. No user input is necessary when it runs. Everything that happens depends on your luck.
-                Progress will be auto-saved from time to time or when you quit the game by pressing CTRL+C.
+                Quit by pressing CTRL+C. For detailed help see the README.
             ''',
             epilog='Made by arT2 (etrusci.org). Repository: https://github.com/etrusci-org/destinyspath4',
         )
@@ -51,7 +51,7 @@ class DP4_Core:
             type=str,
             default=self.Conf.save_name,
             required=False,
-            help=f'name of the save game to create or resume from (default={self.Conf.save_name})',
+            help=f'name of the save game to create or resume from',
         )
 
         self.CLIParser.add_argument('-d', '--save-dir',
@@ -59,7 +59,7 @@ class DP4_Core:
             type=str,
             default=self.Conf.save_dir,
             required=False,
-            help=f'path to the save data directory (default={self.Conf.save_dir})',
+            help=f'path to the save data directory',
         )
 
         self.CLIParser.add_argument('-i', '--autosave-interval',
@@ -67,12 +67,12 @@ class DP4_Core:
             type=int,
             default=self.Conf.autosave_interval,
             required=False,
-            help=f'time in seconds on which the progress should automatically be saved to file (default={self.Conf.autosave_interval})',
+            help=f'time in seconds on which the progress should automatically be saved to file',
         )
 
         self.CLIParser.add_argument('-f', '--log-to-file',
             action='store_true',
-            help=f'write progress lines to log file (logfile={self.Conf.save_dir.joinpath(f"{self.Conf.save_name}.(dailydate).log")}',
+            help=f'write progress lines to log file',
         )
 
         # lang option disabled until there is a second translation
@@ -572,7 +572,7 @@ class DP4_Core:
             self.log(f'Try --play first', sleep=0, to_file=False)
             return
 
-        self.log(f'Listing save data files from: {self.Conf.save_dir}', sleep=2, with_spinner=True, to_file=False)
+        self.log(f'Listing save data files from: {self.Conf.save_dir}', sleep=0, with_spinner=True, to_file=False)
         self.log('', sleep=0, to_file=False)
         self.log('Resume any of these games with --save-name <NAME>', sleep=0, to_file=False)
         self.log(f'e.g.: dp4.py --play --save-name {dump[0].stem}', sleep=0, to_file=False)
