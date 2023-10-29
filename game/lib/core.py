@@ -104,7 +104,7 @@ class DP4_Core:
         self.Lang: DP4_Lang = DP4_Lang(lang_code=self.Conf.lang)
 
         self.Conf.log_to_file = self.cliargs.log_to_file
-        self.Conf.log_file = self.Conf.save_dir.joinpath(f'{self.Conf.save_name}.{datetime.date.today()}.log')
+        self.Conf.log_file = self.Conf.save_dir.joinpath(f'{self.Conf.save_name}.log')
         self.prev_log_msg: str = ''
 
         if self.Conf.log_to_file:
