@@ -1,6 +1,6 @@
 # Destiny's Path 4
 
-Destiny's Path is an idle-game that is *played* in the terminal. No user input is necessary when it runs. Everything that happens depends on your luck.
+Destiny's Path 4 is an idle-game that is *played* in the terminal. No user input is necessary when it runs. Everything that happens depends on your luck.
 
 It was created just for fun/learning. Like part 1-3, which I never made public ;-)
 
@@ -59,7 +59,7 @@ Progress will be auto-saved from time to time or when you quit the game by press
 
 ## Options
 
-All arguments are optional. If you provide none, the quickhelp will be displayed.
+All arguments are optional. If you provide none, the quickhelp will be displayed. You can use either the short or long version of the argument. E.g. `--play` and `-p` are the same.
 
 `-h`, `--help`  
 Display the quickhelp.
@@ -80,7 +80,7 @@ Path to the save data directory. Default=`/path/to/destinyspath4/game/save`
 Time in seconds on which the progress should automatically be saved to file. Default=`300`
 
 `-f`, `--log-to-file`  
-Write progress lines to log file. The files will be stored inside the save data directory and are rotated daily.
+Write progress lines to a log file. It will be stored inside the save data directory.
 
 ---
 
@@ -90,13 +90,7 @@ Write progress lines to log file. The files will be stored inside the save data 
 
 ```bash
 dp4.py
-```
-
-```bash
 dp4.py --help
-```
-
-```bash
 dp4.py -h
 ```
 
@@ -104,9 +98,6 @@ dp4.py -h
 
 ```bash
 dp4.py --play
-```
-
-```bash
 dp4.py -p
 ```
 
@@ -114,9 +105,6 @@ dp4.py -p
 
 ```bash
 dp4.py --list-saves
-```
-
-```bash
 dp4.py -s
 ```
 
@@ -124,9 +112,6 @@ dp4.py -s
 
 ```bash
 dp4.py --play --save-name myothergame
-```
-
-```bash
 dp4.py -p -n myothergame
 ```
 
@@ -134,9 +119,6 @@ dp4.py -p -n myothergame
 
 ```bash
 dp4.py --play --save-dir /path/to/mysavedata
-```
-
-```bash
 dp4.py -p -d /path/to/mysavedata
 ```
 
@@ -144,9 +126,6 @@ dp4.py -p -d /path/to/mysavedata
 
 ```bash
 dp4.py --play --autosave-interval 180
-```
-
-```bash
 dp4.py -p -i 180
 ```
 
@@ -154,9 +133,6 @@ dp4.py -p -i 180
 
 ```bash
 dp4.py --play --log-to-file
-```
-
-```bash
 dp4.py -p -f
 ```
 
@@ -164,17 +140,11 @@ dp4.py -p -f
 
 ```bash
 dp4.py --play --save-name myothergame --save-dir /path/to/mysavedata --autosave-interval 180 --log-to-file
-```
-
-```bash
 dp4.py -p -n myothergame -d /path/to/mysavedata -i 180 -f
 ```
 
 ```bash
 dp4.py --list-saves --save-dir /path/to/mysavedata
-```
-
-```bash
 dp4.py -s -d /path/to/mysavedata
 ```
 
