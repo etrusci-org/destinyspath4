@@ -4,16 +4,17 @@ Destiny's Path 4 is an idle-game that is *played* in the terminal. No user input
 
 It was created just for fun/learning. Like part 1-3, which I never made public ;-)
 
-- [Destiny's Path 4](#destinys-path-4)
-  - [Dependecies](#dependecies)
-  - [Installation](#installation)
-  - [Updating](#updating)
-  - [Quickstart](#quickstart)
-  - [Options](#options)
-  - [Examples](#examples)
-  - [Display Text Glossary](#display-text-glossary)
-  - [Thanks](#thanks)
-  - [License](#license)
+[Demo video on YouTube](https://www.youtube.com/watch?v=VyzdqNGaVuI)
+
+- [Dependecies](#dependecies)
+- [Installation](#installation)
+- [Updating](#updating)
+- [Quickstart](#quickstart)
+- [Options](#options)
+- [Examples](#examples)
+- [Screenshot + Display Text Glossary](#display-text-glossary)
+- [Thanks](#thanks)
+- [License](#license)
 
 ---
 
