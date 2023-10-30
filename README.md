@@ -4,7 +4,17 @@ Destiny's Path 4 is an idle-game that is *played* in the terminal. No user input
 
 It was created just for fun/learning. Like part 1-3, which I never made public ;-)
 
-![screenshot1](./screenshot.png)
+[Demo video on YouTube](https://www.youtube.com/watch?v=VyzdqNGaVuI)
+
+- [Dependecies](#dependecies)
+- [Installation](#installation)
+- [Updating](#updating)
+- [Quickstart](#quickstart)
+- [Options](#options)
+- [Examples](#examples)
+- [Screenshot + Display Text Glossary](#display-text-glossary)
+- [Thanks](#thanks)
+- [License](#license)
 
 ---
 
@@ -25,7 +35,13 @@ On Windows/Other: Download the version for your operating system and install it.
 2. [Download](https://github.com/etrusci-org/destinyspath4/releases) the latest DP4 release.
 3. Unpack the compressed release file and copy the **destinyspath4-x.x.x** directory to any place on your system.
 
-To update, just repeat those steps and copy over the previous save files.
+---
+
+## Updating
+
+To update, just repeat the [Installation](#installation) steps and copy over your previous save files.
+
+If an update requires a save data reset, the game will do that automatically on the next start. A backup of your old save data files will be created inside the save data directory.
 
 ---
 
@@ -147,6 +163,25 @@ dp4.py -p -n myothergame -d /path/to/mysavedata -i 180 -f
 dp4.py --list-saves --save-dir /path/to/mysavedata
 dp4.py -s -d /path/to/mysavedata
 ```
+
+---
+
+## Display Text Glossary
+
+![screenshot](screenshot.png)
+
+- `shell`: Player name. Changes on each rebirth.
+- `region`: Name and level number of the region the player is exploring. Changes at certain amounts of traveled distance.
+- `hot wallet`: Currency amount in the hot wallet. The hot wallet can be hacked.
+- `cold wallet`: Currency amount in the cold wallet. The cold wallet is secure.
+- `wagon`: Free inventory boxes to store items in.
+- `distance traveled`: Total distance the player has traveled.
+- `items found`: Total items found and total items stolen by foes.
+- `items sold`: Total items sold.
+- `income`: Total income from selling items and the amount stolen by hackers.
+- `kills`: Total killed foes.
+- `deaths`: Total times the player has died and breakdown where it happened.
+- `<iNumber>`: Current game loop iteration streak. Resets on each game restart.
 
 ---
 
