@@ -641,6 +641,6 @@ class DP4_Core:
         if self.Save.total_deaths > 0:
             self.log(f'{self.Lang.stats_label_total_deaths}: {self.Lang.stats_text_total_deaths.format(total_deaths=self.Save.total_deaths, total_deaths_by_foes=self.Save.total_deaths_by_foes, total_random_deaths=self.Save.total_random_deaths)}', sleep=0, to_file=False)
 
-        log_file_size: str = f'<{ff(self.Conf.log_file.stat().st_size / 1024 / 1024, prec=1)}m>' if self.cliargs.log_to_file and self.Conf.log_file.is_file() else ''
+        log_file_size: str = f'({ff(self.Conf.log_file.stat().st_size / 1024 / 1024, prec=1)}m)' if self.cliargs.log_to_file and self.Conf.log_file.is_file() else ''
 
-        self.log(f'<i{self.game_loop_iter_count}>-{log_file_size}--'.ljust(w, '-'), start='\n', end='\n\n', sleep=0, to_file=False)
+        self.log(f'---(i{self.game_loop_iter_count})---{log_file_size}---'.ljust(w, '-'), start='\n', end='\n\n', sleep=0, to_file=False)
