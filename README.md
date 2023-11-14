@@ -20,18 +20,20 @@ It was created just for fun/learning. Like part 1-3, which I never made public ;
 
 ## Dependecies
 
-- [Python](https://www.python.org/downloads/) version `>= 3.9.2`
+- [Python](https://www.python.org/) version `>= 3.9.2`
 - A terminal to run it. The default on any platform should do the trick - e.g. xterm, terminator, powershell, cmd, etc.
 
-**Note**: DP4 was written and tested on Python  `3.9.2`. **Later Python versions could introduce breaking changes**, but usually you're good with installing the latest one. You can have multiple Python versions installed at the same time. If you're not sure which version you have installed, try `python3 --version` in the terminal.
+Tested on: Debian 11 + Python 3.9.2, Windows 11 + Python 3.12.0
+
+**Note**: Later Python versions could introduce breaking changes, but usually you're good with installing the latest one. You can have multiple Python versions installed at the same time. If you're not sure which version you have installed, try `python3 --version` in the terminal.
 
 ---
 
 ## Installation
 
 1. Install [Python](https://www.python.org/downloads/) `>= 3.9.2`.
-On *nix: It's most probably already installed. Otherwise install **python3** with your favorite package manager.  
-On Windows/Other: Download the version for your operating system and install it. Make sure to let the setup program *"add Python to your PATH"*.  
+On Unix: It's most probably already installed. Otherwise install **python3** with your favorite package manager.  
+On Windows/Other: Download the version for your operating system and install it. Make sure to let the setup program *"add Python to your PATH"*.
 2. [Download](https://github.com/etrusci-org/destinyspath4/releases) the latest DP4 release.
 3. Unpack the compressed release file and copy the **destinyspath4-x.x.x** directory to any place on your system.
 
@@ -47,7 +49,7 @@ If an update requires a save data reset, the game will do that automatically on 
 
 ## Quickstart
 
-Open a terminal window and change into the `game/` directory:
+Open a terminal window and change into the `destinyspath4/game/` directory:
 
 ```bash
 cd path/to/destinyspath4/game/
@@ -56,15 +58,19 @@ cd path/to/destinyspath4/game/
 Play the game:
 
 ```bash
-# on *nix systems
-./dp4.py --play # maybe you have to make dp4.py executable first with `chmod +x dp4.py`
+# on Unix systems
+./dp4.py --play
+
+# maybe you have to make dp4.py executable first with `chmod +x dp4.py`
 ```
 
 ```bash
 # on Windows systems:
 python3 dp4.py --play
+
 # or if `python3` does not work try...
 python3.exe dp4.py --play
+
 # or
 C:/path/to/python3/python3.exe dp4.py --play
 ```
@@ -96,7 +102,7 @@ Path to the save data directory. Default=`/path/to/destinyspath4/game/save`
 Time in seconds on which the progress should automatically be saved to file. Default=`300`
 
 `-f`, `--log-to-file`  
-Write progress lines to a log file. It will be stored inside the save data directory.
+Write progress lines to a log file. It will be stored inside the save data directory. Default=*do not write to log file*
 
 ---
 
@@ -181,8 +187,8 @@ dp4.py -s -d /path/to/mysavedata
 - `income`: Total income from selling items and the amount stolen by hackers.
 - `kills`: Total killed foes.
 - `deaths`: Total times the player has died and breakdown where it happened.
-- `<iNumber>`: Current game loop iteration streak. Resets on each game restart.
-
+- `(i[N])`: Current game loop iteration streak. Resets on each game restart.
+- `([N]m)`: Approx. size of the log file in MB. Only visible if `--log-to-file` is used.
 ---
 
 ## Thanks

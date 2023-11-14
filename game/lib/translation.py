@@ -62,7 +62,7 @@ TRANSLATION['en'] = {
     'sim_transfer_currency_transfering': 'Transfering some {currency_name} to the cold wallet',
     'sim_transfer_currency_result': 'Secured {transfer_amount} {currency_name}',
 
-    'sim_death': 'Dying because `{cause_of_death}´',
+    'sim_death': 'Died because `{cause_of_death}´',
 
     'sim_rebirth_waiting': 'Waiting to be reborn',
     'sim_rebirth_calibrating': 'Calibrating new reality',
